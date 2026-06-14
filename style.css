@@ -23,28 +23,24 @@ html, body {
 /* --- THE REALISTIC BACKGROUND FIX --- */
 .real-tulip-bg {
     position: fixed; top: -5%; left: -5%; width: 110vw; height: 110vh; z-index: 0;
-    background: url('https://images.unsplash.com/photo-1520764836476-cb2ccf152d19?q=80&w=1080&auto=format&fit=crop') center/cover no-repeat;
+    /* Added a solid fallback color so it NEVER looks broken if the image loads slowly */
+    background-color: #fdfaf7; 
+    background-image: url('https://images.unsplash.com/photo-1520764836476-cb2ccf152d19?q=80&w=1080&auto=format&fit=crop');
+    background-position: center;
+    background-size: cover;
+    background-repeat: no-repeat;
     filter: blur(4px); 
     animation: gentleBreeze 25s ease-in-out infinite alternate;
-}
-.luxury-overlay {
-    position: fixed; top: 0; left: 0; width: 100vw; height: 100vh; z-index: 1;
-    background: linear-gradient(135deg, rgba(255, 250, 245, 0.85) 0%, rgba(255, 240, 245, 0.7) 100%);
-}
-
-@keyframes gentleBreeze {
-    0% { transform: scale(1) translate(0, 0); }
-    100% { transform: scale(1.08) translate(-2%, -1%); }
 }
 
 /* --- THE NEW CANVAS PETAL FALL --- */
 #petal-canvas {
-    position: fixed; top: 0; left: 0; width: 100vw; height: 100vh;
+    position: fixed; top: 0; left: 0; 
+    /* Changed from vw/vh to % to prevent mobile address bar glitches */
+    width: 100%; height: 100%; 
     pointer-events: none; 
-    /* z-index 2 places it between the background and the glass UI */
     z-index: 2; 
 }
-
 /* --- THE WATERMARK --- */
 .watermark-bg {
     position: absolute; top: 50%; left: 50%; transform: translate(-50%, -50%);
