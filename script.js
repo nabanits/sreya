@@ -1,19 +1,31 @@
-let shuffleInterval;
-let positions = ['pos-1', 'pos-2', 'pos-3'];
 const audio = document.getElementById('bg-music');
 const arrow = document.getElementById('audio-arrow');
 const replayPopup = document.getElementById('replay-popup');
+let typingActive = false; // Flag to prevent typing bug
 
-// Audio Logic & Arrow Handling
+// --- 1. THEME & AUDIO INITIALIZATION ---
 window.onload = function() {
+    // Generate the Parallax Background
+    generateBackgroundTulips();
+
     audio.play().then(() => {
-        arrow.innerHTML = 'Click to mute <span>➔</span>';
-        arrow.classList.remove('hidden');
+        arrow.innerHTML = 'Audio playing';
+        setTimeout(() => arrow.classList.add('hidden'), 3000); 
     }).catch(e => {
-        arrow.innerHTML = 'Click to play music <span>➔</span>';
+        arrow.innerHTML = 'Tap here to enable music';
         arrow.classList.remove('hidden');
     });
 };
+
+function toggleTheme() {
+    document.body.classList.toggle('light-mode');
+    const toggleBtn = document.getElementById('theme-toggle');
+    if(document.body.classList.contains('light-mode')) {
+        toggleBtn.innerText = '🌙';
+    } else {
+        toggleBtn.innerText = '☀️';
+    }
+}
 
 function toggleAudio() {
     const btn = document.getElementById('audio-control');
@@ -39,74 +51,79 @@ function playAudioAgain() {
     replayPopup.classList.add('hidden');
 }
 
-// Navigation Logic (Unified flow with fix for text chat next button)
+// --- 2. STEP NAVIGATION & SEAL LOGIC ---
 function goToStep(stepNumber) {
     if (audio.paused && document.getElementById('audio-control').innerText === '🔊') {
         audio.play().catch(e => console.log("Audio play failed"));
         arrow.classList.add('hidden');
     }
 
-    // specific fix for text chat next button invisibility bug
-    // If we're going "Back" to Slide 2, we need to check if typing finished and show button.
-    // Add flag logic in typeWriter function, and check here.
-
     document.querySelectorAll('.step-container').forEach(step => {
         step.classList.remove('active');
-        setTimeout(() => step.classList.add('hidden'), 600);
+        setTimeout(() => step.classList.add('hidden'), 800); 
     });
 
     if (stepNumber === 2) {
-        // Hide the button if revisit, flag check will show it if done.
-        document.getElementById('btn2').classList.add('hidden'); 
-
-        setTimeout(() => {
-            let typingCompleted = 0; 
-            const checkDone = () => {
-                typingCompleted++;
-                if (typingCompleted === 2) {
-                    // specific fix: ensure visibility flag specific fix invisibility
-                    document.getElementById('btn2').classList.remove('hidden');
-                }
-            };
-            typeWriter('source1', 'type1', checkDone);
-            typeWriter('source2', 'type2', checkDone);
-        }, 800);
-    }
-    
-    if (stepNumber === 4) {
-        setTimeout(launchConfetti, 300);
-        startPhotoShuffle();
-    } else {
-        if(shuffleInterval) clearInterval(shuffleInterval);
+        document.getElementById('btn2').classList.add('hidden');
+        // Reset the seal every time they visit page 2
+        document.getElementById('seal-overlay').classList.remove('broken');
+        document.getElementById('title1').style.opacity = '0';
+        document.getElementById('title2').style.opacity = '0';
+        document.getElementById('type1').innerHTML = '';
+        document.getElementById('type2').innerHTML = '';
+        typingActive = false;
     }
 
     setTimeout(() => {
         const nextStep = document.getElementById('step' + stepNumber);
         nextStep.classList.remove('hidden');
-        setTimeout(() => nextStep.classList.add('active'), 50);
-    }, 600);
+        setTimeout(() => nextStep.classList.add('active'), 50); 
+    }, 800);
 }
 
-// Live Typing Engine
+// Breaking the Glass Seal on Page 2
+function breakSeal() {
+    if (typingActive) return; // Prevent double clicks
+    typingActive = true;
+    
+    // Break animation
+    document.getElementById('seal-overlay').classList.add('broken');
+    
+    // Wait for glass to slide away, then fade in titles and start typing
+    setTimeout(() => {
+        document.getElementById('title1').style.opacity = '1';
+        document.getElementById('title2').style.opacity = '1';
+        document.getElementById('title1').style.transition = 'opacity 0.5s';
+        document.getElementById('title2').style.transition = 'opacity 0.5s';
+        
+        let typingCompleted = 0; 
+        const checkDone = () => {
+            typingCompleted++;
+            if (typingCompleted === 2) {
+                document.getElementById('btn2').classList.remove('hidden');
+            }
+        };
+        typeWriter('source1', 'type1', checkDone);
+        typeWriter('source2', 'type2', checkDone);
+    }, 1200); // 1.2s matches CSS transition time
+}
+
+// Live Typing
 function typeWriter(sourceId, targetId, callback) {
     const text = document.getElementById(sourceId).innerHTML;
     const target = document.getElementById(targetId);
 
-    // Crucial Fix: Kill any existing typing timer on this specific text box
-    if (target.typingTimer) {
-        clearTimeout(target.typingTimer);
-    }
+    if (target.typingTimer) clearTimeout(target.typingTimer);
 
     target.innerHTML = ''; 
-    target.classList.add('typing-target'); // Ensure the blinking cursor is back
+    target.classList.add('typing-target'); 
     let i = 0;
 
     function type() {
         if (i < text.length) {
             target.innerHTML += text.charAt(i);
             i++;
-            // Save the timer ID to the element so we can kill it later if needed
-            target.typingTimer = setTimeout(type, 35);
+            target.typingTimer = setTimeout(type, 30); 
         } else {
             target.classList.remove('typing-target'); 
             if (callback) callback();
@@ -115,72 +132,77 @@ function typeWriter(sourceId, targetId, callback) {
     type();
 }
 
-// Photo Shuffle Vault
-function startPhotoShuffle() {
-    const photos = document.querySelectorAll('.polaroid');
-    if (shuffleInterval) clearInterval(shuffleInterval);
+// --- 3. BACKGROUND WIND TULIPS ---
+function generateBackgroundTulips() {
+    const container = document.getElementById('parallax-bg-container');
+    const numTulips = window.innerWidth < 600 ? 8 : 15; // Keep it sparse and elegant
     
-    shuffleInterval = setInterval(() => {
-        positions.unshift(positions.pop()); 
-        photos.forEach((photo, index) => {
-            photo.className = 'polaroid ' + positions[index];
-        });
-    }, 4000); 
+    for (let i = 0; i < numTulips; i++) {
+        let tulip = document.createElement('div');
+        tulip.classList.add('parallax-tulip');
+        
+        let size = Math.random() * 150 + 50; // Size 50px to 200px
+        let blur = Math.random() * 8 + 2; // Blur 2px to 10px for depth
+        let rot = Math.random() * 40 - 20; // Initial rotation tilt
+        let speed = Math.random() * 5 + 4; // Wind sway speed
+
+        tulip.style.width = `${size}px`;
+        tulip.style.height = `${size}px`;
+        tulip.style.left = `${Math.random() * 100}vw`;
+        tulip.style.top = `${Math.random() * 100}vh`;
+        
+        tulip.style.setProperty('--blur-amt', `${blur}px`);
+        tulip.style.setProperty('--rot', `${rot}deg`);
+        tulip.style.setProperty('--speed', `${speed}s`);
+
+        container.appendChild(tulip);
+    }
 }
 
-// realistic realistic "shower of tulips"
-// not only pink tulips but realistic colored tulips (white, pink, and other real colors)
+// --- 4. THE CUSTOM SVG CONFETTI ENGINE ---
 function launchConfetti() {
     const container = document.getElementById('confetti-canvas');
-    // complex tumbling complex tumbling spinning complex tumbling
-    // realistic 3D tulip modelrealistic 3D tulip model realistic 3D realistic realistic realistic
-    // I am assuming the multi-colored tulip pattern shown in image_5.png as 'realistic realistic Colored colored real coloured tulips tulips tulips tulips
-    // complex complex complex complex complex tumbling keyframes
+    
+    // The raw SVG path for a perfect tulip shape
+    const tulipPath = "M12,22 C18,22 20,15 20,11 L4,11 C4,15 6,22 12,22 Z M4,11 L9,3 L12,11 Z M20,11 L15,3 L12,11 Z M9,11 L12,1 L15,11 Z";
+    
+    // A premium color palette including white, pinks, mauve, and soft yellow
+    const colors = ['#ffffff', '#ff66b2', '#ff99cc', '#d8b4e2', '#fde2bb'];
 
-    // Create unique keyframe variables dynamically complex tumbling complex tumbling
-    for (let i = 0; i < 40; i++) {
+    for (let i = 0; i < 45; i++) {
         let conf = document.createElement('div');
         conf.classList.add('confetti-piece');
         
-        // dynamic dynamic dynamic realistic colored tulips colored adapts image_5.png colors
-        const colors = ['white-tulip.png', 'pink-tulip-1.png', 'pink-tulip-2.png', 'mauve-tulip.png', 'yellow-tulip.png'];
-        const randomTulip = colors[Math.floor(Math.random() * colors.length)];
-        conf.style.backgroundImage = `url('${randomTulip}')`;
-        conf.style.left = Math.random() * 100 + 'vw';
-        conf.style.top = '-50px'; 
+        // Pick a random real color from our palette
+        let color = colors[Math.floor(Math.random() * colors.length)];
         
-        // precise dynamic dynamic complex tumbling keyframes specific fix specific fix invis
-        // dynamic keyframe name, and inject the style specific fix invisibility invisible fix invisibility flag invisible behavior invisible invisibility invisibility invisibility flag visibility flag invisibility invis
-        const animName = `fall${Date.now()}`;
-        const finalRotX = `${(Math.random() - 0.5) * 1080}deg`;
-        const finalRotY = `${(Math.random() - 0.5) * 1080}deg`;
-        const finalRotZ = `${(Math.random() - 0.5) * 720}deg`;
+        // Inject the SVG directly into the HTML
+        conf.innerHTML = `<svg viewBox="0 0 24 24" fill="${color}" width="100%" height="100%"><path d="${tulipPath}"/></svg>`;
 
-        conf.style.setProperty('--rot-x', finalRotX);
-        conf.style.setProperty('--rot-y', finalRotY);
-        conf.style.setProperty('--rot-z', finalRotZ);
+        conf.style.left = Math.random() * 100 + 'vw';
+        conf.style.top = '-10vh'; 
 
-        let duration = Math.random() * 3 + 3; 
+        let duration = Math.random() * 4 + 4; 
         let delay = Math.random() * 2;
-        // set keyframe to flowerFall defined in CSS which uses variables
-        conf.style.animation = `flowerFall ${duration}s linear ${delay}s forwards`;
+        
+        conf.style.animation = `svgFall ${duration}s linear ${delay}s forwards`;
         
         conf.addEventListener('animationend', () => conf.remove());
         container.appendChild(conf);
     }
 }
 
-// Cinematic Image Modal/Popup (Lightbox)
+// --- 5. CINEMATIC LIGHTBOX ---
 function openModal(imgSrc) {
     const modal = document.getElementById('image-modal');
     const expandedImg = document.getElementById('expanded-img');
     
-    expandedImg.src = imgSrc; // Sets the high-res image
-    modal.classList.add('active'); // Fades the modal in
+    expandedImg.src = imgSrc; 
+    modal.classList.add('active'); 
 }
 
 function closeModal() {
     const modal = document.getElementById('image-modal');
-    modal.classList.remove('active'); // Fades the modal out
-        }
-                                                 
+    modal.classList.remove('active'); 
+               }
+            
