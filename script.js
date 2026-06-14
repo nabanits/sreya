@@ -39,7 +39,7 @@ function playAudioAgain() {
     replayPopup.classList.add('hidden');
 }
 
-// --- 2. STEP NAVIGATION & TYPING BUG FIX ---
+// --- 2. STEP NAVIGATION & BUG-FREE TYPING ---
 function goToStep(stepNumber) {
     if (audio.paused && document.getElementById('audio-control').innerText === '🔊') {
         audio.play().catch(e => console.log("Audio play failed"));
@@ -49,28 +49,24 @@ function goToStep(stepNumber) {
     // Fade out current step
     document.querySelectorAll('.step-container').forEach(step => {
         step.classList.remove('active');
-        setTimeout(() => step.classList.add('hidden'), 800); 
+        setTimeout(() => step.classList.add('hidden'), 600); 
     });
 
-    // Specific Logic for Step 2 Typing
     if (stepNumber === 2) {
-        // Ensure button is hidden when the slide opens
         const btn2 = document.getElementById('btn2');
-        btn2.classList.add('hidden');
+        btn2.classList.add('hidden'); // Hide button initially
         
-        // Wait for slide to fade in, then start typing
         setTimeout(() => {
             let typingCompleted = 0; 
             const checkDone = () => {
                 typingCompleted++;
                 if (typingCompleted === 2) {
-                    // BUG FIX: Directly unhide the button when both texts finish
-                    btn2.classList.remove('hidden');
+                    btn2.classList.remove('hidden'); // Show button when both texts finish
                 }
             };
             typeWriter('source1', 'type1', checkDone);
             typeWriter('source2', 'type2', checkDone);
-        }, 1000);
+        }, 800);
     }
 
     if (stepNumber === 4) {
@@ -85,10 +81,10 @@ function goToStep(stepNumber) {
         const nextStep = document.getElementById('step' + stepNumber);
         nextStep.classList.remove('hidden');
         setTimeout(() => nextStep.classList.add('active'), 50); 
-    }, 800);
+    }, 600);
 }
 
-// Bulletproof Live Typing
+// Bulletproof Typing (Properly handles Emojis!)
 function typeWriter(sourceId, targetId, callback) {
     const text = document.getElementById(sourceId).innerHTML;
     const target = document.getElementById(targetId);
@@ -97,11 +93,14 @@ function typeWriter(sourceId, targetId, callback) {
 
     target.innerHTML = ''; 
     target.classList.add('typing-target'); 
+    
+    // Using Array.from safely splits emojis without breaking them in half
+    const chars = Array.from(text);
     let i = 0;
 
     function type() {
-        if (i < text.length) {
-            target.innerHTML += text.charAt(i);
+        if (i < chars.length) {
+            target.innerHTML += chars[i];
             i++;
             target.typingTimer = setTimeout(type, 30); 
         } else {
@@ -112,37 +111,38 @@ function typeWriter(sourceId, targetId, callback) {
     type();
 }
 
-// --- 3. CUSTOM CSS PETAL CONFETTI ---
+// --- 3. CUSTOM SVG TULIP CONFETTI ---
 function launchConfetti() {
     const container = document.getElementById('confetti-canvas');
     
-    // Premium color gradients for realistic petals
-    const petalColors = [
-        'linear-gradient(135deg, #ff9a9e 0%, #fecfef 100%)', // Soft Pink
-        'linear-gradient(135deg, #ffdde1 0%, #ee9ca7 100%)', // Rose
-        'linear-gradient(135deg, #ffffff 0%, #fdfbfb 100%)', // White
-        'linear-gradient(135deg, #f6d365 0%, #fda085 100%)'  // Warm Peach
-    ];
+    // A highly detailed, beautiful SVG path of a tulip blossom
+    const beautifulTulipSVG = `
+        <svg viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
+            <path d="M12 2C12 2 5 6 5 13C5 17 8 21 12 22C16 21 19 17 19 13C19 6 12 2 12 2Z" fill="var(--tulip-color)"/>
+            <path d="M12 2C12 2 9 7 9 13C9 17 10.5 20.5 12 22" stroke="rgba(255,255,255,0.4)" stroke-width="0.5" fill="none"/>
+            <path d="M12 2C12 2 15 7 15 13C15 17 13.5 20.5 12 22" stroke="rgba(255,255,255,0.4)" stroke-width="0.5" fill="none"/>
+        </svg>
+    `;
 
-    for (let i = 0; i < 60; i++) {
+    // Premium realistic tulip colors: Soft Pink, Hot Pink, Cream, Soft Yellow, Mauve
+    const colors = ['#FFB6C1', '#FF69B4', '#FFF5EE', '#FDE882', '#DDA0DD'];
+
+    for (let i = 0; i < 40; i++) {
         let conf = document.createElement('div');
-        conf.classList.add('petal'); // Uses the petal CSS class shape
+        conf.classList.add('svg-tulip');
         
-        let color = petalColors[Math.floor(Math.random() * petalColors.length)];
-        conf.style.background = color;
-
-        // Randomize size slightly
-        let scale = Math.random() * 0.5 + 0.8;
-        conf.style.width = `${15 * scale}px`;
-        conf.style.height = `${25 * scale}px`;
+        let color = colors[Math.floor(Math.random() * colors.length)];
+        conf.style.setProperty('--tulip-color', color);
+        
+        conf.innerHTML = beautifulTulipSVG;
 
         conf.style.left = Math.random() * 100 + 'vw';
         conf.style.top = '-10vh'; 
 
-        let duration = Math.random() * 5 + 4; 
-        let delay = Math.random() * 3;
+        let duration = Math.random() * 4 + 4; 
+        let delay = Math.random() * 2;
         
-        conf.style.animation = `petalFall ${duration}s linear ${delay}s forwards`;
+        conf.style.animation = `svgFall ${duration}s linear ${delay}s forwards`;
         
         conf.addEventListener('animationend', () => conf.remove());
         container.appendChild(conf);
@@ -173,5 +173,4 @@ function openModal(imgSrc) {
 function closeModal() {
     const modal = document.getElementById('image-modal');
     modal.classList.remove('active'); 
-                }
-            
+}
