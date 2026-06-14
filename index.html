@@ -5,12 +5,15 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
     <title>Happy 19th, Sreya</title>
     <link rel="stylesheet" href="style.css">
-    <link href="https://fonts.googleapis.com/css2?family=Montserrat:wght@300;400;500;600&family=Playfair+Display:ital,wght@0,400;0,600;0,700;1,400&display=swap" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=Montserrat:wght@300;400;500;600&family=Playfair+Display:ital,wght@0,400;0,600;0,700;1,400;1,600&display=swap" rel="stylesheet">
 </head>
 <body>
-    <div id="theme-toggle" onclick="toggleTheme()">☀️</div>
+    <div class="top-controls">
+        <div class="control-btn" id="theme-toggle" onclick="toggleTheme()">☀️</div>
+        <div class="control-btn" id="audio-control" onclick="toggleAudio()">🔊</div>
+    </div>
+    
     <audio id="bg-music" src="music.mp3" autoplay></audio>
-    <div id="audio-control" onclick="toggleAudio()">🔊</div>
     <div id="audio-arrow" class="hidden">Play Music ➔</div>
     <div id="replay-popup" class="hidden" onclick="playAudioAgain()">Replay Track 🎵</div>
 
@@ -40,15 +43,6 @@
         <button class="nav-back" onclick="goToStep(1)"><span>←</span> Return</button>
         
         <div class="console-wrapper">
-            <div id="seal-overlay" class="seal-wrapper">
-                <div class="seal-half seal-top"></div>
-                <div class="seal-half seal-bottom"></div>
-                <div class="seal-center" onclick="breakSeal()">
-                    <div class="seal-icon">🌷</div>
-                    <div class="seal-hint">Tap to break the seal</div>
-                </div>
-            </div>
-
             <div class="obsidian-glass" id="chat-console">
                 <div class="glass-header">
                     <div class="dot red"></div><div class="dot yellow"></div><div class="dot green"></div>
@@ -119,5 +113,4 @@
 
     <script src="script.js"></script>
 </body>
-                </html>
-    
+</html>
