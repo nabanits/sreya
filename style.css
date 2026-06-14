@@ -6,7 +6,14 @@
     --text-color: #F3E5D8;
     --glass-bg: rgba(20, 10, 25, 0.45);
     --glass-border: rgba(229, 181, 184, 0.15);
-    --seal-bg: rgba(11, 7, 16, 0.85);
+    
+    /* Adaptive Cake Variables (Dark Mode) */
+    --cake-t1: linear-gradient(to right, #3A2332 0%, #56334A 40%, #3A2332 100%);
+    --cake-t2: linear-gradient(to right, #241424 0%, #3A2332 40%, #241424 100%);
+    --cake-t3: linear-gradient(to right, #4A2B3B 0%, #683E53 40%, #4A2B3B 100%);
+    --cake-txt-color: var(--gold-accent);
+    --candle-color: #fff;
+    --flame-shadow: 0 0 15px #fff, 0 0 30px var(--gold-accent);
     
     --font-editorial: 'Playfair Display', serif;
     --font-modern: 'Montserrat', sans-serif;
@@ -20,7 +27,14 @@ body.light-mode {
     --text-color: #332128;
     --glass-bg: rgba(255, 255, 255, 0.65);
     --glass-border: rgba(196, 91, 115, 0.2);
-    --seal-bg: rgba(253, 250, 247, 0.85);
+    
+    /* Adaptive Cake Variables (Light Mode) */
+    --cake-t1: linear-gradient(to right, #e8d0b3 0%, #fde2bb 40%, #e8d0b3 100%);
+    --cake-t2: linear-gradient(to right, #d13084 0%, #ff66b2 40%, #d13084 100%);
+    --cake-t3: linear-gradient(to right, #6d1eb8 0%, #b266ff 40%, #6d1eb8 100%);
+    --cake-txt-color: #fff;
+    --candle-color: var(--gold-accent);
+    --flame-shadow: 0 0 15px #ffbf00, 0 0 30px #ff007f;
 }
 
 * { box-sizing: border-box; margin: 0; padding: 0; }
@@ -33,42 +47,57 @@ html, body {
     transition: background-color 0.5s ease, color 0.5s ease;
 }
 
-/* --- THEME & AUDIO TOGGLES --- */
-#theme-toggle {
-    position: fixed; top: 25px; left: 25px; z-index: 100;
-    background: var(--glass-bg); backdrop-filter: blur(10px); border: 1px solid var(--glass-border);
-    border-radius: 50%; width: 45px; height: 45px; display: flex; justify-content: center; align-items: center;
-    font-size: 20px; cursor: pointer; transition: 0.3s; box-shadow: 0 4px 15px rgba(0,0,0,0.1);
-}
-#theme-toggle:hover { transform: rotate(45deg) scale(1.1); }
-
-#audio-control {
+/* --- THEME & AUDIO TOGGLES (Fixed Top Right) --- */
+.top-controls {
     position: fixed; top: 25px; right: 25px; z-index: 100;
+    display: flex; gap: 15px;
+}
+.control-btn {
     background: var(--glass-bg); backdrop-filter: blur(10px); border: 1px solid var(--glass-border);
     border-radius: 50%; width: 45px; height: 45px; display: flex; justify-content: center; align-items: center;
-    font-size: 18px; cursor: pointer; color: var(--gold-accent); transition: 0.3s;
+    font-size: 20px; cursor: pointer; transition: 0.3s; box-shadow: 0 4px 15px rgba(0,0,0,0.1); color: var(--gold-accent);
 }
-#audio-arrow { position: fixed; top: 38px; right: 85px; z-index: 100; font-size: 0.75rem; font-weight: 500; letter-spacing: 1px; animation: bounceLeft 1s infinite; }
+.control-btn:hover { transform: scale(1.1); background: var(--bg-color); }
+
+#audio-arrow { position: fixed; top: 38px; right: 145px; z-index: 100; font-size: 0.75rem; font-weight: 600; letter-spacing: 1px; color: var(--gold-accent); animation: bounceLeft 1s infinite; }
 @keyframes bounceLeft { 0%, 100% { transform: translateX(0); } 50% { transform: translateX(-8px); } }
 
-/* --- CINEMATIC PARALLAX TULIP BACKGROUND --- */
+#replay-popup {
+    position: fixed; top: 25px; left: 50%; transform: translateX(-50%); z-index: 1000;
+    background: var(--gold-accent); color: #fff; padding: 12px 25px; border-radius: 30px; 
+    font-family: var(--font-modern); font-weight: 600; font-size: 0.8rem; letter-spacing: 1px; text-transform: uppercase;
+    box-shadow: 0 10px 30px var(--gold-glow); cursor: pointer; animation: slideDown 0.5s cubic-bezier(0.4, 0, 0.2, 1);
+}
+@keyframes slideDown { from { top: -50px; opacity: 0; } to { top: 25px; opacity: 1; } }
+
+/* --- THE RETURN BUTTON (Isolated Top Left) --- */
+.nav-back {
+    position: absolute; top: 25px; left: 25px; z-index: 100;
+    background: transparent; border: none; color: var(--text-color); opacity: 0.7;
+    font-family: var(--font-modern); font-size: 0.8rem; font-weight: 600; letter-spacing: 2px;
+    text-transform: uppercase; cursor: pointer; transition: 0.3s; display: flex; align-items: center; gap: 8px;
+}
+.nav-back span { font-size: 1.2rem; transition: 0.3s;}
+.nav-back:hover { color: var(--gold-accent); opacity: 1; }
+.nav-back:hover span { transform: translateX(-5px); }
+
+/* --- CINEMATIC PARALLAX TULIPS (Pure SVG Code) --- */
 .luxury-vignette {
     position: fixed; top: 0; left: 0; width: 100vw; height: 100vh;
-    background: radial-gradient(circle at center, transparent 40%, rgba(0,0,0,0.4) 120%);
+    background: radial-gradient(circle at center, transparent 40%, rgba(0,0,0,0.5) 120%);
     z-index: 1; pointer-events: none; transition: 0.5s;
 }
 body.light-mode .luxury-vignette { opacity: 0; }
 
 #parallax-bg-container { position: fixed; top: 0; left: 0; width: 100vw; height: 100vh; z-index: 0; pointer-events: none; overflow: hidden; }
 .parallax-tulip {
-    position: absolute;
-    background-image: url('bg-tulip.png'); /* YOU MUST ADD THIS IMAGE TO YOUR FOLDER */
-    background-size: contain; background-repeat: no-repeat; background-position: center;
-    opacity: 0.12; 
+    position: absolute; opacity: 0.15; 
     filter: blur(var(--blur-amt));
     animation: gentleWind var(--speed) ease-in-out infinite alternate;
 }
-body.light-mode .parallax-tulip { opacity: 0.25; filter: blur(var(--blur-amt)) contrast(1.2); }
+/* Ensure the injected SVG inherits the color */
+.parallax-tulip svg { fill: var(--gold-accent); width: 100%; height: 100%; }
+body.light-mode .parallax-tulip { opacity: 0.25; filter: blur(var(--blur-amt)); }
 
 @keyframes gentleWind {
     0% { transform: rotate(calc(var(--rot) - 6deg)) translateX(-15px) translateY(0); }
@@ -86,7 +115,7 @@ body.light-mode .parallax-tulip { opacity: 0.25; filter: blur(var(--blur-amt)) c
 .content-wrapper { z-index: 10; width: 100%; max-width: 450px; display: flex; flex-direction: column; align-items: center;}
 .text-center { text-align: center; } .w-100 { width: 100%; } .mt-30 { margin-top: 30px; } .mt-40 { margin-top: 40px; }
 
-.kicker-text { font-size: 0.75rem; font-weight: 500; letter-spacing: 4px; opacity: 0.6; text-transform: uppercase; margin-bottom: 15px; }
+.kicker-text { font-size: 0.75rem; font-weight: 600; letter-spacing: 4px; opacity: 0.6; text-transform: uppercase; margin-bottom: 15px; }
 .cinematic-title { font-family: var(--font-editorial); font-size: 4rem; line-height: 1.1; font-weight: 400; font-style: italic; text-shadow: 0 10px 30px rgba(0,0,0,0.2); }
 .accent-gold { color: var(--gold-accent); }
 
@@ -100,56 +129,29 @@ body.light-mode .parallax-tulip { opacity: 0.25; filter: blur(var(--blur-amt)) c
 .outline-btn { background: transparent; border: 1px solid var(--gold-accent); color: var(--text-color); box-shadow: none; }
 .outline-btn:hover { background: var(--gold-accent); color: #fff; box-shadow: 0 10px 30px var(--gold-glow); }
 
-.nav-back {
-    position: absolute; top: 25px; left: 25px; z-index: 100;
-    background: transparent; border: none; color: var(--text-color); opacity: 0.7;
-    font-family: var(--font-modern); font-size: 0.8rem; font-weight: 500; letter-spacing: 2px;
-    text-transform: uppercase; cursor: pointer; transition: 0.3s; display: flex; align-items: center; gap: 8px;
-}
-.nav-back:hover { color: var(--gold-accent); opacity: 1; }
-
-/* --- STEP 2: THE GLASS SPLIT REVEAL --- */
-.console-wrapper { position: relative; width: 100%; max-width: 400px; height: 400px; }
-
-/* The Seal that breaks */
-.seal-wrapper { position: absolute; top: 0; left: 0; width: 100%; height: 100%; z-index: 20; display: flex; flex-direction: column; }
-.seal-half { width: 100%; height: 50%; background: var(--seal-bg); backdrop-filter: blur(15px); -webkit-backdrop-filter: blur(15px); transition: transform 1.2s cubic-bezier(0.77, 0, 0.175, 1); }
-.seal-top { border-top-left-radius: 16px; border-top-right-radius: 16px; border-bottom: 1px solid var(--gold-accent); transform-origin: top; }
-.seal-bottom { border-bottom-left-radius: 16px; border-bottom-right-radius: 16px; border-top: 1px solid var(--gold-accent); transform-origin: bottom; }
-.seal-center { 
-    position: absolute; top: 50%; left: 50%; transform: translate(-50%, -50%); 
-    display: flex; flex-direction: column; align-items: center; cursor: pointer; transition: 0.5s; 
-}
-.seal-icon { font-size: 3.5rem; filter: drop-shadow(0 0 15px var(--gold-glow)); transition: 0.3s; }
-.seal-center:hover .seal-icon { transform: scale(1.1); filter: drop-shadow(0 0 25px var(--gold-accent)); }
-.seal-hint { font-size: 0.75rem; letter-spacing: 2px; text-transform: uppercase; margin-top: 10px; opacity: 0.7; white-space: nowrap; animation: pulseFade 2s infinite;}
-
-/* The Break Animation */
-.seal-wrapper.broken .seal-top { transform: translateY(-100%); opacity: 0; }
-.seal-wrapper.broken .seal-bottom { transform: translateY(100%); opacity: 0; }
-.seal-wrapper.broken .seal-center { transform: translate(-50%, -50%) scale(1.5); opacity: 0; pointer-events: none; }
-
-/* The Chat underneath */
+/* --- STEP 2: THE CHAT CONSOLE --- */
+.console-wrapper { position: relative; width: 100%; max-width: 400px; height: auto; }
 .obsidian-glass {
-    position: absolute; top: 0; left: 0; width: 100%; height: 100%;
     background: var(--glass-bg); backdrop-filter: blur(25px); -webkit-backdrop-filter: blur(25px);
-    border: 1px solid var(--glass-border); border-radius: 16px; padding: 0; 
-    box-shadow: 0 30px 60px rgba(0,0,0,0.2); z-index: 10; display: flex; flex-direction: column;
+    border: 1px solid var(--glass-border); border-top: 1px solid rgba(255,255,255,0.3);
+    border-radius: 16px; padding: 0; box-shadow: 0 30px 60px rgba(0,0,0,0.2); width: 100%; overflow: hidden;
 }
-.glass-header { background: rgba(0,0,0,0.1); padding: 12px 20px; display: flex; gap: 6px; border-bottom: 1px solid var(--glass-border);}
+.glass-header { background: rgba(0,0,0,0.2); padding: 12px 20px; display: flex; gap: 6px; border-bottom: 1px solid var(--glass-border);}
 .dot { width: 10px; height: 10px; border-radius: 50%; }
 .dot.red { background: #ff5f56; } .dot.yellow { background: #ffbd2e; } .dot.green { background: #27c93f; }
-.glass-body { padding: 30px 25px; flex-grow: 1; }
-.editorial-title { font-family: var(--font-editorial); font-size: 1.6rem; font-weight: 600; font-style: italic; margin-bottom: 10px; }
-.chat-text { line-height: 1.6; font-size: 0.9rem; font-weight: 400; opacity: 0.9; min-height: 60px;}
-.luxury-divider { width: 100%; height: 1px; background: linear-gradient(90deg, transparent, var(--glass-border), transparent); margin: 20px 0; }
+.glass-body { padding: 35px 30px; display: flex; flex-direction: column; align-items: center;}
+
+.editorial-title { font-family: var(--font-editorial); font-size: 1.8rem; font-weight: 600; font-style: italic; margin-bottom: 15px; align-self: flex-start;}
+.chat-text { color: var(--text-color); line-height: 1.8; font-size: 0.95rem; font-weight: 400; opacity: 0.9; min-height: 80px; align-self: flex-start;}
+.luxury-divider { width: 100%; height: 1px; background: linear-gradient(90deg, transparent, var(--glass-border), transparent); margin: 25px 0; }
 .typing-target::after { content: '|'; animation: blink 1s step-start infinite; color: var(--gold-accent); }
+@keyframes blink { 50% { opacity: 0; } }
 
 /* --- STEP 3: THE ANTHEM MONOLITH --- */
-.anthem-card { position: relative; height: auto; padding: 50px 30px; overflow: hidden; }
+.anthem-card { padding: 50px 30px; position: relative; }
 .watermark-icon { position: absolute; top: 50%; left: 50%; transform: translate(-50%, -50%); font-size: 16rem; opacity: 0.04; filter: grayscale(100%); pointer-events: none; }
-.massive-title { font-size: 2.2rem; text-align: center; color: var(--gold-accent); margin-bottom: 30px; border-bottom: 1px solid var(--glass-border); padding-bottom: 20px;}
-.lyrics-text { font-family: var(--font-modern); font-size: 0.95rem; line-height: 1.8; text-align: center; font-weight: 400; opacity: 0.8;}
+.massive-title { font-size: 2.5rem; text-align: center; color: var(--gold-accent); margin-bottom: 30px; border-bottom: 1px solid var(--glass-border); padding-bottom: 20px;}
+.lyrics-text { font-family: var(--font-modern); font-size: 0.95rem; line-height: 1.8; color: var(--text-color); text-align: center; font-weight: 400; opacity: 0.8;}
 .italic-pop { font-family: var(--font-editorial); font-size: 1.4rem; font-style: italic; font-weight: 600; }
 
 /* --- STEP 4: FLOATING MEMORY SCATTER --- */
@@ -157,12 +159,12 @@ body.light-mode .parallax-tulip { opacity: 0.25; filter: blur(var(--blur-amt)) c
 .polaroid { 
     position: absolute; background: var(--glass-bg); backdrop-filter: blur(10px);
     padding: 10px 10px 30px 10px; border-radius: 4px; border: 1px solid var(--glass-border); 
-    box-shadow: 0 20px 40px rgba(0,0,0,0.3); width: 160px; height: 200px; 
+    box-shadow: 0 20px 40px rgba(0,0,0,0.15); width: 160px; height: 200px; 
     cursor: pointer; overflow: hidden; transition: 0.4s;
     animation: gentleFloat 6s infinite ease-in-out;
 }
 .polaroid img { width: 100%; height: 100%; object-fit: cover; border-radius: 2px; filter: grayscale(20%) contrast(1.1); transition: 0.5s; }
-.polaroid:hover { transform: scale(1.1) !important; z-index: 20 !important; box-shadow: 0 30px 60px var(--gold-glow); }
+.polaroid:hover { transform: scale(1.1) !important; z-index: 20 !important; box-shadow: 0 30px 60px var(--gold-glow); border-color: var(--gold-accent);}
 .polaroid:hover img { filter: grayscale(0%) contrast(1); }
 
 .pos-1 { left: 10%; top: 10%; transform: rotate(-12deg); animation-delay: 0s; }
@@ -170,9 +172,25 @@ body.light-mode .parallax-tulip { opacity: 0.25; filter: blur(var(--blur-amt)) c
 .pos-3 { left: 30%; bottom: 5%; transform: rotate(4deg); animation-delay: -4s; width: 180px; height: 220px; z-index: 3;}
 .final-wish { font-family: var(--font-editorial); font-size: 1.5rem; font-style: italic; letter-spacing: 1px; z-index: 10; position: relative; }
 
-/* --- SVG CONFETTI --- */
+/* --- ADAPTIVE 3D CAKE --- */
+.elegant-cake-container { width: 100%; height: 240px; display: flex; justify-content: center; align-items: flex-end; position: relative; z-index: 10; animation: gentleFloat 6s ease-in-out infinite; }
+.cake-3d { position: relative; display: flex; flex-direction: column; align-items: center; justify-content: flex-end; padding-bottom: 12px; }
+.tier { position: relative; display: flex; justify-content: center; align-items: center; border-radius: 4px; box-shadow: inset -10px 0 20px rgba(0,0,0,0.1), inset 10px 0 20px rgba(255,255,255,0.2), 0 10px 20px rgba(0,0,0,0.15); transition: background 0.5s; }
+
+/* Uses CSS Variables defined at the top to perfectly match themes */
+.tier-bottom { width: 180px; height: 60px; background: var(--cake-t1); z-index: 3; margin-top: -5px; border-bottom: 2px solid var(--gold-accent); }
+.tier-middle { width: 140px; height: 55px; background: var(--cake-t2); z-index: 4; margin-top: -5px; border-bottom: 2px solid var(--gold-accent); }
+.tier-top { width: 100px; height: 50px; background: var(--cake-t3); z-index: 5; border-bottom: 2px solid var(--gold-accent); }
+
+.cake-text { font-family: var(--font-editorial); font-style: italic; font-size: 2rem; color: var(--cake-txt-color); text-shadow: 0 2px 5px rgba(0,0,0,0.3); transform: translateY(-2px); z-index: 15; transition: 0.5s; }
+.candle-19 { position: absolute; top: -55px; z-index: 10; font-family: var(--font-editorial); font-style: italic; font-size: 2.5rem; color: var(--candle-color); text-shadow: 0 0 15px rgba(255,255,255,0.8); display: flex; flex-direction: column; align-items: center; transition: 0.5s;}
+.flame { width: 10px; height: 18px; background: #fff; border-radius: 50% 50% 20% 20%; box-shadow: var(--flame-shadow); margin-bottom: 2px; animation: flicker 0.15s infinite alternate; transition: 0.5s;}
+@keyframes flicker { 0% { transform: rotate(-1deg) scale(1); opacity: 0.9; } 100% { transform: rotate(1deg) scale(1.05); opacity: 1; } }
+.cake-plate { position: absolute; bottom: 4px; width: 220px; height: 8px; background: var(--glass-bg); border-radius: 50%; box-shadow: 0 15px 25px rgba(0,0,0,0.3); z-index: 2; border: 1px solid var(--glass-border); }
+
+/* --- PURE SVG CONFETTI --- */
 #confetti-canvas { position: fixed; top: 0; left: 0; width: 100vw; height: 100vh; pointer-events: none; z-index: 9999; }
-.svg-tulip { position: absolute; width: 25px; height: 35px; filter: drop-shadow(0 5px 10px rgba(0,0,0,0.3)); }
+.confetti-piece { position: absolute; width: 25px; height: 35px; filter: drop-shadow(0 5px 10px rgba(0,0,0,0.2)); }
 @keyframes svgFall {
     0% { transform: translateY(-10vh) rotateX(0deg) rotateY(0deg) rotateZ(0deg); opacity: 1; }
     100% { transform: translateY(110vh) rotateX(720deg) rotateY(360deg) rotateZ(180deg); opacity: 0; }
@@ -183,35 +201,26 @@ body.light-mode .parallax-tulip { opacity: 0.25; filter: blur(var(--blur-amt)) c
     position: fixed; top: 0; left: 0; width: 100vw; height: 100vh;
     background: rgba(0, 0, 0, 0.9); backdrop-filter: blur(15px);
     z-index: 9999; display: flex; justify-content: center; align-items: center;
-    opacity: 0; visibility: hidden; transition: 0.5s;
+    opacity: 0; visibility: hidden; transition: 0.5s cubic-bezier(0.4, 0, 0.2, 1);
 }
 #image-modal.active { opacity: 1; visibility: visible; }
-.modal-content { max-width: 90%; max-height: 80vh; border-radius: 4px; box-shadow: 0 0 50px var(--gold-glow); border: 2px solid rgba(255,255,255,0.2); transform: scale(0.9); transition: 0.6s; }
-#image-modal.active .modal-content { transform: scale(1); }
-.close-modal { position: absolute; top: 30px; right: 40px; color: #fff; font-size: 45px; font-weight: 300; cursor: pointer; transition: 0.3s; }
-.close-modal:hover { color: var(--gold-accent); transform: rotate(90deg); }
+.modal-content { max-width: 90%; max-height: 80vh; border-radius: 4px; box-shadow: 0 0 50px var(--gold-glow); border: 2px solid rgba(255,255,255,0.2); transform: scale(0.95) translateY(20px); transition: 0.6s cubic-bezier(0.4, 0, 0.2, 1); }
+#image-modal.active .modal-content { transform: scale(1) translateY(0); }
+.close-modal { position: absolute; top: 30px; right: 40px; color: #fff; font-family: var(--font-modern); font-size: 30px; font-weight: 300; cursor: pointer; transition: 0.3s; opacity: 0.5; }
+.close-modal:hover { color: var(--gold-accent); transform: rotate(90deg); opacity: 1; }
 
-/* --- 3D CAKE --- */
-.elegant-cake-container { width: 100%; height: 240px; display: flex; justify-content: center; align-items: flex-end; position: relative; z-index: 10; animation: gentleFloat 6s ease-in-out infinite; }
-.cake-3d { position: relative; display: flex; flex-direction: column; align-items: center; justify-content: flex-end; padding-bottom: 12px; }
-.tier { position: relative; display: flex; justify-content: center; align-items: center; border-radius: 4px; box-shadow: inset -10px 0 20px rgba(0,0,0,0.2), inset 10px 0 20px rgba(255,255,255,0.2), 0 10px 20px rgba(0,0,0,0.3); }
-.tier-bottom { width: 180px; height: 60px; background: linear-gradient(to right, #B08B9B 0%, #E5B5B8 40%, #B08B9B 100%); z-index: 3; margin-top: -5px; }
-.tier-middle { width: 140px; height: 55px; background: linear-gradient(to right, #875C74 0%, #C45B73 40%, #875C74 100%); z-index: 4; margin-top: -5px; }
-.tier-top { width: 100px; height: 50px; background: linear-gradient(to right, #5A354E 0%, #904C77 40%, #5A354E 100%); z-index: 5; }
-.cake-text { font-family: var(--font-editorial); font-style: italic; font-size: 2rem; color: #fff; text-shadow: 0 2px 5px rgba(0,0,0,0.5); transform: translateY(-2px); z-index: 15; }
-.candle-19 { position: absolute; top: -55px; z-index: 10; font-family: var(--font-editorial); font-style: italic; font-size: 2.5rem; color: #fff; text-shadow: 0 0 15px rgba(255,255,255,0.8); display: flex; flex-direction: column; align-items: center; }
-.flame { width: 10px; height: 18px; background: #fff; border-radius: 50% 50% 20% 20%; box-shadow: 0 0 15px #fff, 0 0 30px var(--gold-accent); margin-bottom: 2px; animation: flicker 0.15s infinite alternate; }
-
-/* Responsive */
+/* Responsive Adjustments */
 @media screen and (max-height: 800px) {
     .cinematic-title { font-size: 3rem; margin-bottom: 10px; }
     .elegant-cake-container { transform: scale(0.85); margin-bottom: 0px; margin-top: -10px; }
     .luxury-btn { padding: 12px 25px; font-size: 0.75rem; }
-    .console-wrapper { height: 350px; }
-    .glass-body { padding: 20px 20px; }
-    .chat-text { font-size: 0.85rem; min-height: 50px; }
-    .anthem-card { padding: 30px 20px; }
+    .console-wrapper { height: auto; }
+    .glass-body { padding: 25px 20px; }
+    .chat-text { font-size: 0.85rem; min-height: 60px; }
+    .massive-title { font-size: 2rem; margin-bottom: 20px; padding-bottom: 15px;}
+    .anthem-card { padding: 35px 20px; }
+    .lyrics-text { font-size: 0.85rem; line-height: 1.6; }
     .polaroid-gallery { height: 280px; transform: scale(0.85); }
     .final-wish { font-size: 1.2rem; }
-              }
-              
+    }
+    
