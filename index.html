@@ -1,0 +1,108 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <title>For Sreya's 19th</title>
+    <link rel="stylesheet" href="style.css">
+    <link href="https://fonts.googleapis.com/css2?family=Great+Vibes&family=Montserrat:wght@300;400;500;600;700&family=Playfair+Display:ital,wght@0,400;0,600;1,400&display=swap" rel="stylesheet">
+</head>
+<body>
+    <audio id="bg-music" src="music.mp3" autoplay></audio>
+    <div id="audio-control" onclick="toggleAudio()">🔊</div>
+    <div id="audio-arrow" class="hidden">Click to mute <span>➔</span></div>
+    <div id="replay-popup" class="hidden" onclick="playAudioAgain()">Click to play the song again 🎵</div>
+
+    <canvas id="plexus-network"></canvas>
+    <div class="tech-comets"></div>
+
+    <div id="step1" class="step-container active">
+        <div class="content-wrapper text-center">
+            <h1 class="cinematic-title">Happy Birthday <br><span class="accent-pk">Sreya</span></h1>
+            
+            <div class="elegant-cake-container">
+                <div class="cake-3d">
+                    <div class="candle-19"><div class="flame"></div>19</div>
+                    <div class="tier tier-top"></div>
+                    <div class="tier tier-middle"><span class="cake-text">Sreya</span></div>
+                    <div class="tier tier-bottom"></div>
+                    <div class="cake-plate"></div>
+                    <div class="cake-base"></div>
+                </div>
+            </div>
+            
+            <button class="premium-btn next-btn mt-30" onclick="goToStep(2)">Start the Celebration ✨</button>
+        </div>
+    </div>
+
+    <div id="step2" class="step-container hidden">
+        <button class="back-btn" onclick="goToStep(1)">⟵ Back</button>
+        <div class="glass-panel">
+            <h2 class="accent-title accent-pp" id="title1">A Minor Detail 😉</h2>
+            <p class="chat-text typing-target" id="type1"></p>
+            
+            <hr class="divider">
+            
+            <h2 class="accent-title accent-pk" id="title2">Jokes Aside ✨</h2>
+            <p class="chat-text typing-target" id="type2"></p>
+            
+            <button class="premium-btn next-btn mt-30 w-100 hidden" id="btn2" onclick="goToStep(3)">Read the Melody 📜</button>
+        </div>
+        
+        <div class="hidden" id="source1">They say the human brain fully develops at 25... So technically, you're still a minor in brain years, right? 😉</div>
+        <div class="hidden" id="source2">HAPPY BIRTHDAY! You're incredible, and I just wanted to remind you how lucky you are to have a friend like me to build this custom experience for you. You deserve all the happiness this year!</div>
+    </div>
+
+    <div id="step3" class="step-container hidden">
+        <button class="back-btn" onclick="goToStep(2)">⟵ Back</button>
+        <div class="content-wrapper text-center w-100">
+            <div class="royal-letter">
+                <h2 class="royal-title">The Birthday Anthem</h2>
+                <div class="lyrics-text">
+                    Happy birthday to you, dear Sreya<br>
+                    Another year has come today<br>
+                    Wishing you the best in every way<br>
+                    Wishing you the best in every way<br>
+                    May your dreams all light the way<br>
+                    Now the party is just beginning<br>
+                    See the whole world round us spinning<br>
+                    You're so smart and you are so kind<br>
+                    The nicest friend I could ever find<br>
+                    Happy birthday Sreya<br>
+                    Sreya, you're the best!<br>
+                    Happy birthday!<br>
+                    <span style="font-weight: bold; font-size: 1.5rem; color: #d4af37;">Yay! 🎉</span>
+                </div>
+                <div class="wax-seal">S</div>
+            </div>
+            <button class="premium-btn next-btn mt-30" onclick="goToStep(4)">Open Memory Vault 📸</button>
+        </div>
+    </div>
+
+    <div id="step4" class="step-container hidden">
+        <button class="back-btn" onclick="goToStep(3)" style="z-index: 100;">⟵ Back</button>
+        <div id="confetti-canvas"></div>
+        <div class="content-wrapper text-center w-100">
+            <h2 class="cinematic-title mb-20 accent-pk" style="font-size: 3rem;">Memory Vault</h2>
+            
+            <div class="polaroid-gallery" id="photo-gallery">
+                <div class="polaroid pos-1"><img src="photo1.jpg" alt="Memory 1" onclick="openModal(this.src)"></div>
+                <div class="polaroid pos-2"><img src="photo2.jpg" alt="Memory 2" onclick="openModal(this.src)"></div>
+                <div class="polaroid pos-3"><img src="photo3.jpg" alt="Memory 3" onclick="openModal(this.src)"></div>
+            </div>
+
+            <p class="final-wish mt-30 final-final">Have some class and make this year incredible! 🥂</p>
+            
+            <button class="premium-btn mt-30" style="font-size: 0.8rem; padding: 10px 20px; background: rgba(255,255,255,0.1); border: 1px solid rgba(255,255,255,0.4);" onclick="launchConfetti()">Shower Tulips 🌷</button>
+        </div>
+    </div>
+
+    <div id="image-modal" class="modal-hidden" onclick="closeModal()">
+        <span class="close-modal">&times;</span>
+        <img class="modal-content" id="expanded-img">
+    </div>
+
+    <script src="script.js"></script>
+</body>
+      </html>
+      
