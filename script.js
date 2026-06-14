@@ -1,13 +1,10 @@
 const audio = document.getElementById('bg-music');
 const arrow = document.getElementById('audio-arrow');
-const replayPopup = document.getElementById('replay-popup');
 let shuffleInterval;
-let positions = ['pos-1', 'pos-2', 'pos-3'];
+let positions = ['pos-1', 'pos-2', 'pos-3', 'pos-4', 'pos-5'];
 
-// --- 1. INITIALIZATION & AUDIO ---
+// --- 1. INITIALIZATION ---
 window.onload = function() {
-    initPetals(); // Starts the continuous canvas petal fall
-
     audio.play().then(() => {
         arrow.classList.add('hidden');
     }).catch(e => {
@@ -28,18 +25,6 @@ function toggleAudio() {
     }
 }
 
-audio.addEventListener('ended', () => {
-    document.getElementById('audio-control').innerText = '🔇';
-    replayPopup.classList.remove('hidden');
-});
-
-function playAudioAgain() {
-    audio.currentTime = 0;
-    audio.play();
-    document.getElementById('audio-control').innerText = '🔊';
-    replayPopup.classList.add('hidden');
-}
-
 // --- 2. STEP NAVIGATION & BUG-FREE TYPING ---
 function goToStep(stepNumber) {
     if (audio.paused && document.getElementById('audio-control').innerText === '🔊') {
@@ -47,6 +32,7 @@ function goToStep(stepNumber) {
         arrow.classList.add('hidden');
     }
 
+    // Fade out current step
     document.querySelectorAll('.step-container').forEach(step => {
         step.classList.remove('active');
         setTimeout(() => step.classList.add('hidden'), 600); 
@@ -75,6 +61,7 @@ function goToStep(stepNumber) {
         if(shuffleInterval) clearInterval(shuffleInterval);
     }
 
+    // Fade in new step
     setTimeout(() => {
         const nextStep = document.getElementById('step' + stepNumber);
         nextStep.classList.remove('hidden');
@@ -82,6 +69,7 @@ function goToStep(stepNumber) {
     }, 600);
 }
 
+// Safely handles typing, including emojis
 function typeWriter(sourceId, targetId, callback) {
     const text = document.getElementById(sourceId).innerHTML;
     const target = document.getElementById(targetId);
@@ -106,20 +94,48 @@ function typeWriter(sourceId, targetId, callback) {
     }
     type();
 }
-// --- 3. CANVAS PETAL ENGINE (Bulletproof Mobile Fix) ---
-function initPetals() {
+
+// --- 3. PHOTO GALLERY & LIGHTBOX ---
+function startPhotoShuffle() {
+    const photos = document.querySelectorAll('.polaroid');
+    if (shuffleInterval) clearInterval(shuffleInterval);
+    
+    shuffleInterval = setInterval(() => {
+        // Shift the array of positions
+        positions.unshift(positions.pop()); 
+        photos.forEach((photo, index) => {
+            photo.className = 'polaroid ' + positions[index];
+        });
+    }, 3500); 
+}
+
+function openModal(imgSrc) {
+    const modal = document.getElementById('image-modal');
+    const expandedImg = document.getElementById('expanded-img');
+    
+    expandedImg.src = imgSrc; 
+    modal.classList.add('active'); 
+}
+
+function closeModal() {
+    const modal = document.getElementById('image-modal');
+    modal.classList.remove('active'); 
+}
+
+// --- 4. THE USER'S CANVAS PETAL FALL ---
+(() => {
     const canvas = document.getElementById("petal-canvas");
     const ctx = canvas.getContext("2d");
 
-    let W, H, DPR;
+    let W = 0, H = 0, DPR = 1;
 
     function resize() {
+        DPR = Math.min(window.devicePixelRatio || 1, 2);
         W = window.innerWidth;
         H = window.innerHeight;
-        DPR = window.devicePixelRatio || 1;
-        // Lock the internal canvas resolution
-        canvas.width = W * DPR;
-        canvas.height = H * DPR;
+        canvas.width = Math.floor(W * DPR);
+        canvas.height = Math.floor(H * DPR);
+        ctx.setTransform(DPR, 0, 0, DPR, 0, 0);
     }
 
     window.addEventListener("resize", resize);
@@ -149,10 +165,9 @@ function initPetals() {
 
     function drawPetal(p) {
         ctx.save();
-        // Scale everything perfectly for high-res mobile screens
-        ctx.translate(p.x * DPR, p.y * DPR);
+        ctx.translate(p.x, p.y);
         ctx.rotate(p.rot);
-        ctx.scale(p.s * DPR, p.s * DPR);
+        ctx.scale(p.s, p.s);
         ctx.globalAlpha = p.alpha;
 
         const g = ctx.createLinearGradient(0, -12, 0, 12);
@@ -172,9 +187,7 @@ function initPetals() {
     }
 
     function animate() {
-        // THE FIX: Absolutely force the canvas to wipe clean every frame
-        ctx.setTransform(1, 0, 0, 1, 0, 0);
-        ctx.clearRect(0, 0, canvas.width, canvas.height);
+        ctx.clearRect(0, 0, W, H);
 
         for (const p of petals) {
             p.x += p.vx + Math.sin(p.wave) * 0.35;
@@ -196,30 +209,5 @@ function initPetals() {
     }
 
     animate();
-}
-    
-// --- 4. PHOTO GALLERY & LIGHTBOX ---
-function startPhotoShuffle() {
-    const photos = document.querySelectorAll('.polaroid');
-    if (shuffleInterval) clearInterval(shuffleInterval);
-    
-    shuffleInterval = setInterval(() => {
-        positions.unshift(positions.pop()); 
-        photos.forEach((photo, index) => {
-            photo.className = 'polaroid ' + positions[index];
-        });
-    }, 3500); 
-}
-
-function openModal(imgSrc) {
-    const modal = document.getElementById('image-modal');
-    const expandedImg = document.getElementById('expanded-img');
-    
-    expandedImg.src = imgSrc; 
-    modal.classList.add('active'); 
-}
-
-function closeModal() {
-    const modal = document.getElementById('image-modal');
-    modal.classList.remove('active'); 
-}
+})();
+        
