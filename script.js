@@ -1,18 +1,21 @@
 const audio = document.getElementById('bg-music');
 const arrow = document.getElementById('audio-arrow');
+const replayPopup = document.getElementById('replay-popup');
+const roamingContainer = document.getElementById('roaming-tulips-container');
+
+// Canvas globals
 const canvas = document.getElementById("petal-canvas");
 const ctx = canvas.getContext("2d");
-
 let W = 0, H = 0, DPR = 1;
 let petals = [];
-let isHeavyFall = false; // Flag to control shower intensity
+let animationFrameId;
 
-// --- 1. INITIALIZATION & AUDIO ---
+// State control
+let currentStep = 1;
+
 window.onload = function() {
-    initPetals(); // Setup the canvas
-    
-    // Start with sparse, slow roaming for pages 1 and 2
-    isHeavyFall = false; 
+    initCanvas();
+    startRoamingTulips(); // Start P1/P2 effect
 
     audio.play().then(() => {
         arrow.classList.add('hidden');
@@ -34,18 +37,22 @@ function toggleAudio() {
     }
 }
 
-// --- 2. STEP NAVIGATION & LOGIC ---
+// --- STEP NAVIGATION & LOGIC ---
 function goToStep(stepNumber) {
+    currentStep = stepNumber;
+    
     if (audio.paused && document.getElementById('audio-control').innerText === '🔊') {
         audio.play().catch(e => console.log("Audio play failed"));
         arrow.classList.add('hidden');
     }
 
-    // Adjust petal behavior based on the page
-    if (stepNumber >= 3) {
-        isHeavyFall = true; // Switch to full shower
+    // Handle Background Animations based on page
+    if (stepNumber <= 2) {
+        stopPetalFall();
+        startRoamingTulips();
     } else {
-        isHeavyFall = false; // Switch to sparse roaming
+        stopRoamingTulips();
+        startPetalFall(stepNumber);
     }
 
     // Fade out current step
@@ -105,28 +112,85 @@ function typeWriter(sourceId, targetId, callback) {
     type();
 }
 
-// --- 3. DYNAMIC CANVAS PETAL ENGINE ---
-// Uses your provided code but modifies behavior based on `isHeavyFall`
-function initPetals() {
-    function resize() {
-        DPR = Math.min(window.devicePixelRatio || 1, 2);
-        W = window.innerWidth;
-        H = window.innerHeight;
-        canvas.width = Math.floor(W * DPR);
-        canvas.height = Math.floor(H * DPR);
-        ctx.setTransform(DPR, 0, 0, DPR, 0, 0);
+// --- ANIMATION EFFECTS ---
+
+// 1. Sparse Bouncing Emoji Tulips (Pages 1 & 2)
+let roamingIntervals = [];
+
+function startRoamingTulips() {
+    roamingContainer.innerHTML = '';
+    const numTulips = 8; // Fewer tulips
+    
+    for (let i = 0; i < numTulips; i++) {
+        let tulip = document.createElement('div');
+        tulip.classList.add('roaming-tulip');
+        tulip.innerText = '🌷';
+        
+        let x = Math.random() * window.innerWidth;
+        let y = Math.random() * window.innerHeight;
+        
+        // Slower speed as requested
+        let vx = (Math.random() - 0.5) * 1.2; 
+        let vy = (Math.random() - 0.5) * 1.2;
+
+        roamingContainer.appendChild(tulip);
+
+        function moveTulip() {
+            if (currentStep > 2) return; // Stop if we moved to P3/P4
+
+            x += vx;
+            y += vy;
+
+            // Bounce off edges
+            if (x < 0 || x > window.innerWidth - 30) vx *= -1;
+            if (y < 0 || y > window.innerHeight - 40) vy *= -1;
+
+            tulip.style.transform = `translate(${x}px, ${y}px)`;
+            
+            // Randomly rotate slightly for natural feel
+            tulip.style.rotate = `${Math.sin(x/50) * 15}deg`;
+
+            requestAnimationFrame(moveTulip);
+        }
+        moveTulip();
+    }
+}
+
+function stopRoamingTulips() {
+    roamingContainer.innerHTML = '';
+}
+
+// 2. Canvas Petal Fall (Pages 3 & 4)
+function initCanvas() {
+    DPR = Math.min(window.devicePixelRatio || 1, 2);
+    W = window.innerWidth;
+    H = window.innerHeight;
+    canvas.width = Math.floor(W * DPR);
+    canvas.height = Math.floor(H * DPR);
+    ctx.setTransform(DPR, 0, 0, DPR, 0, 0);
+}
+
+window.addEventListener("resize", () => {
+    initCanvas();
+    if(currentStep >= 3) {
+        petals = []; // Reset on resize to recalculate screen width
+        createPetals(currentStep);
+    }
+});
+
+const rand = (min, max) => Math.random() * (max - min) + min;
+const pick = arr => arr[(Math.random() * arr.length) | 0];
+
+function createPetals(step) {
+    const colors = ["#ff6ea8", "#ff8cbc", "#ffb2cf", "#ffd0de", "#f7a6c5"];
+    
+    // Logic: Reduce density by 2.5/4 (62.5%) on Anthem Slide (Step 3)
+    let maxCount = Math.floor((W * H) / 18000) + 40;
+    if (step === 3) {
+        maxCount = Math.floor(maxCount * 0.625); // Apply density reduction
     }
 
-    window.addEventListener("resize", resize);
-    resize();
-
-    const colors = ["#ff6ea8", "#ff8cbc", "#ffb2cf", "#ffd0de", "#f7a6c5"];
-    const rand = (min, max) => Math.random() * (max - min) + min;
-    const pick = arr => arr[(Math.random() * arr.length) | 0];
-
-    // Create max petals needed for the heavy fall
-    const maxCount = Math.min(75, Math.floor((W * H) / 18000) + 40);
-
+    petals = []; // Clear array
     for (let i = 0; i < maxCount; i++) {
         petals.push({
             x: rand(0, W),
@@ -138,73 +202,73 @@ function initPetals() {
             vr: rand(-0.015, 0.015),
             wave: rand(0, Math.PI * 2),
             color: pick(colors),
-            // Base alpha, will be modified by logic
-            baseAlpha: rand(0.65, 0.95), 
-            // Randomly assign a subset of petals to be "sparse"
-            isSparse: Math.random() < 0.2 
+            alpha: rand(0.65, 0.95)
         });
     }
-
-    function drawPetal(p, currentAlpha) {
-        ctx.save();
-        ctx.translate(p.x, p.y);
-        ctx.rotate(p.rot);
-        ctx.scale(p.s, p.s);
-        ctx.globalAlpha = currentAlpha;
-
-        const g = ctx.createLinearGradient(0, -12, 0, 12);
-        g.addColorStop(0, "#ffe4ef");
-        g.addColorStop(0.5, p.color);
-        g.addColorStop(1, "#ff7fb0");
-        ctx.fillStyle = g;
-
-        ctx.beginPath();
-        ctx.moveTo(0, -10);
-        ctx.bezierCurveTo(7, -8, 10, -1, 7, 7);
-        ctx.bezierCurveTo(4, 11, -4, 12, -7, 7);
-        ctx.bezierCurveTo(-10, -1, -7, -8, 0, -10);
-        ctx.fill();
-
-        ctx.restore();
-    }
-
-    function animate() {
-        ctx.clearRect(0, 0, W, H);
-
-        for (const p of petals) {
-            // Determine behavior based on page state
-            let currentVy = isHeavyFall ? p.vy : p.vy * 0.3; // Slower on P1/P2
-            let currentAlpha = isHeavyFall ? p.baseAlpha : 0.6; // Opacity 0.6 on P1/P2
-            
-            // Only show a fraction of petals on P1/P2
-            let shouldDraw = isHeavyFall || p.isSparse;
-
-            p.x += p.vx + Math.sin(p.wave) * 0.35;
-            p.y += currentVy;
-            p.rot += p.vr;
-            p.wave += 0.03;
-
-            if (p.y > H + 25) {
-                p.y = -25;
-                p.x = rand(0, W);
-            }
-            if (p.x < -30) p.x = W + 30;
-            if (p.x > W + 30) p.x = -30;
-
-            if (shouldDraw) {
-                drawPetal(p, currentAlpha);
-            }
-        }
-
-        requestAnimationFrame(animate);
-    }
-
-    animate();
 }
 
-// --- 4. PHOTO GALLERY & LIGHTBOX ---
-// Removed the automatic shuffle interval. The 5 photos now just sit elegantly.
+function startPetalFall(step) {
+    if (animationFrameId) cancelAnimationFrame(animationFrameId);
+    
+    // Always recreate petals on slide change to apply density logic
+    createPetals(step);
+    
+    animatePetals();
+}
 
+function stopPetalFall() {
+    if (animationFrameId) cancelAnimationFrame(animationFrameId);
+    ctx.clearRect(0, 0, canvas.width, canvas.height);
+}
+
+function drawPetal(p) {
+    ctx.save();
+    ctx.translate(p.x * DPR, p.y * DPR);
+    ctx.rotate(p.rot);
+    ctx.scale(p.s * DPR, p.s * DPR);
+    ctx.globalAlpha = p.alpha;
+
+    const g = ctx.createLinearGradient(0, -12, 0, 12);
+    g.addColorStop(0, "#ffe4ef");
+    g.addColorStop(0.5, p.color);
+    g.addColorStop(1, "#ff7fb0");
+    ctx.fillStyle = g;
+
+    ctx.beginPath();
+    ctx.moveTo(0, -10);
+    ctx.bezierCurveTo(7, -8, 10, -1, 7, 7);
+    ctx.bezierCurveTo(4, 11, -4, 12, -7, 7);
+    ctx.bezierCurveTo(-10, -1, -7, -8, 0, -10);
+    ctx.fill();
+
+    ctx.restore();
+}
+
+function animatePetals() {
+    // Mobile glitch fix: force wipe
+    ctx.setTransform(1, 0, 0, 1, 0, 0);
+    ctx.clearRect(0, 0, canvas.width, canvas.height);
+
+    for (const p of petals) {
+        p.x += p.vx + Math.sin(p.wave) * 0.35;
+        p.y += p.vy;
+        p.rot += p.vr;
+        p.wave += 0.03;
+
+        if (p.y > H + 25) {
+            p.y = -25;
+            p.x = rand(0, W);
+        }
+        if (p.x < -30) p.x = W + 30;
+        if (p.x > W + 30) p.x = -30;
+
+        drawPetal(p);
+    }
+
+    animationFrameId = requestAnimationFrame(animatePetals);
+}
+
+// --- 4. LIGHTBOX VIEWER ---
 function openModal(imgSrc) {
     const modal = document.getElementById('image-modal');
     const expandedImg = document.getElementById('expanded-img');
@@ -216,5 +280,4 @@ function openModal(imgSrc) {
 function closeModal() {
     const modal = document.getElementById('image-modal');
     modal.classList.remove('active'); 
-            }
-        
+}
