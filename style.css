@@ -1,8 +1,9 @@
 :root {
     --pk-accent: #d16b8a; /* Soft Tulip Pink */
     --pp-accent: #a56b8d; /* Muted Mauve */
+    --cyan-accent: #7ddce3; /* Soft cyan from example */
     --cr-accent: #fcf4f4; /* Off-white cream */
-    --bg-gradient: linear-gradient(135deg, #fdf4f6 0%, #f3e5e8 50%, #e2d1d8 100%);
+    --bg-color: #fdfaf7; /* Soft paper background */
     --glass-bg: rgba(255, 255, 255, 0.55);
     --glass-border: rgba(255, 255, 255, 0.8);
     --font-heading: 'Great Vibes', cursive;
@@ -13,13 +14,38 @@
 * { box-sizing: border-box; margin: 0; padding: 0; }
 
 html, body { 
-    background: var(--bg-gradient);
+    background-color: var(--bg-color);
     color: #4a4a4a; /* Elegant dark grey instead of white */
     font-family: var(--font-body); 
     overflow-x: hidden; 
     overflow-y: auto; 
     min-height: 100vh; 
     width: 100vw;
+}
+
+/* --- THE NEW TULIP GLASS OVERLAY THEME --- */
+.elegant-bg-glass-overlay {
+    position: fixed; top: 0; left: 0; width: 100vw; height: 100vh;
+    z-index: 0; pointer-events: none;
+    background: radial-gradient(circle at 10% 10%, rgba(209, 107, 138, 0.1), transparent 50%),
+                radial-gradient(circle at 90% 90%, rgba(125, 220, 227, 0.1), transparent 50%),
+                radial-gradient(circle at 50% 50%, rgba(165, 107, 141, 0.05), transparent 60%);
+    backdrop-filter: blur(5px);
+}
+
+/* CSS-based Translucent Tulips scattered in background */
+.elegant-bg-glass-overlay::after {
+    content: '🌷'; position: absolute; font-size: 8rem; opacity: 0.15;
+    filter: drop-shadow(0 0 10px rgba(209, 107, 138, 0.2));
+}
+/* Scattering and rotating several large static tulips */
+body::after {
+    content: '🌷'; position: fixed; bottom: 20%; right: 15%; font-size: 10rem; opacity: 0.1;
+    z-index: 0; transform: rotate(15deg); filter: hue-rotate(180deg) drop-shadow(0 0 10px rgba(125, 220, 227, 0.15));
+}
+body::before {
+    content: '🌷'; position: fixed; top: 25%; left: 10%; font-size: 7rem; opacity: 0.1;
+    z-index: 0; transform: rotate(-10deg); filter: hue-rotate(300deg) drop-shadow(0 0 10px rgba(165, 107, 141, 0.15));
 }
 
 /* Audio Controls - Styled for light theme */
@@ -118,7 +144,7 @@ html, body {
 }
 
 /* ========================================= */
-/* --- PASTEL 3D CAKE --- */
+/* --- UPGRADED STANDARD 3D CAKE (Light Pastel) --- */
 /* ========================================= */
 .elegant-cake-container { 
     width: 100%; height: 260px; display: flex; justify-content: center; align-items: flex-end; 
@@ -135,6 +161,7 @@ html, body {
     background: radial-gradient(circle at 10px 0, transparent 10px, #ffffff 11px);
     background-size: 20px 15px; background-repeat: repeat-x; z-index: 10; opacity: 0.95;
 }
+/* Reverted to standard decorative gold bead borders based on reference */
 .tier-bottom { width: 180px; height: 60px; background: linear-gradient(to right, #e8d0b3 0%, var(--cr-accent) 40%, #e8d0b3 100%); z-index: 3; margin-top: -5px; border-bottom: 5px dotted #d16b8a; }
 .tier-middle { width: 140px; height: 55px; background: linear-gradient(to right, #e88ba7 0%, #f4a6bf 40%, #e88ba7 100%); z-index: 4; margin-top: -5px; border-bottom: 4px dotted #fff; }
 .tier-top { width: 100px; height: 50px; background: linear-gradient(to right, #c28eb5 0%, #d8b4e2 40%, #c28eb5 100%); z-index: 5; border-bottom: 4px dotted #fff; }
@@ -153,17 +180,17 @@ html, body {
     transition: all 2.5s cubic-bezier(0.4, 0, 0.2, 1); cursor: pointer; border: 1px solid #eee;
 }
 .polaroid img { width: 100%; height: 100%; object-fit: cover; background: #eee; }
-.pos-1 { transform: rotate(-12deg) translateX(-60px) scale(0.85); z-index: 1; opacity: 0.8; }
-.pos-2 { transform: rotate(14deg) translateX(60px) scale(0.85); z-index: 2; opacity: 0.8; }
+.pos-1 { transform: rotate(-12deg) translateX(-60px) scale(0.85); z-index: 1; opacity: 0.8; box-shadow: 0 8px 20px rgba(209, 107, 138, 0.15); }
+.pos-2 { transform: rotate(14deg) translateX(60px) scale(0.85); z-index: 2; opacity: 0.8; box-shadow: 0 8px 20px rgba(209, 107, 138, 0.15); }
 .pos-3 { transform: rotate(2deg) translateY(-10px) scale(1.05); z-index: 3; opacity: 1; box-shadow: 0 20px 40px rgba(209, 107, 138, 0.3); }
 .final-wish { font-family: var(--font-royal); font-size: 2rem; color: var(--pk-accent); font-weight: 600; font-style: italic; z-index: 10; position: relative; }
 
-/* --- TULIP SHOWER --- */
+/* --- TULIP SHOWER (Confetti update to flowers) --- */
 #confetti-canvas { position: fixed; top: 0; left: 0; width: 100vw; height: 100vh; pointer-events: none; z-index: 9999; }
-.confetti-piece { position: absolute; font-size: 1.8rem; user-select: none; }
-@keyframes flowerFall { 0% { transform: translateY(-50px) rotate(0deg); opacity: 1; } 100% { transform: translateY(110vh) rotate(calc(720deg * var(--spin))); opacity: 0; } }
+.confetti-piece { position: absolute; width: 15px; height: 25px; font-size: 20px; user-select: none; }
+@keyframes flowerFall { 0% { transform: translateY(-50px) rotate(0deg); opacity: 1; } 100% { transform: translateY(110vh) rotate(360deg); opacity: 0; } }
 
-/* --- FULLSCREEN IMAGE POPUP --- */
+/* --- FULLSCREEN IMAGE POPUP (MODAL) (Lightbox) --- */
 #image-modal {
     position: fixed; top: 0; left: 0; width: 100vw; height: 100vh;
     background: rgba(255, 255, 255, 0.85); backdrop-filter: blur(10px);
@@ -174,6 +201,7 @@ html, body {
 .modal-content { max-width: 90%; max-height: 80vh; border-radius: 8px; box-shadow: 0 15px 40px rgba(209, 107, 138, 0.3); border: 8px solid #fff; transform: scale(0.8); transition: 0.4s; }
 #image-modal.active .modal-content { transform: scale(1); }
 .close-modal { position: absolute; top: 25px; right: 35px; color: var(--pk-accent); font-size: 45px; font-weight: bold; cursor: pointer; transition: 0.3s; }
+.close-modal:hover { color: #e88ba7; transform: scale(1.2); }
 
 /* Responsive Adjustments */
 @media screen and (max-height: 800px) {
@@ -182,7 +210,7 @@ html, body {
     .premium-btn { padding: 12px 25px; font-size: 0.85rem; margin-top: 15px; }
     .next-btn::before { top: -25px; font-size: 0.7rem; } 
     .glass-panel { padding: 20px 15px; }
-    .chat-text { font-size: 0.85rem; min-height: 60px; }
+    .chat-text { font-size: 0.85rem; line-height: 1.5; min-height: 60px; }
     .royal-title { font-size: 2.2rem; margin-bottom: 15px; }
     .royal-letter { padding: 25px 15px 35px 15px; }
     .polaroid-gallery { height: 260px; transform: scale(0.85); }
@@ -192,5 +220,5 @@ html, body {
     .elegant-cake-container { transform: scale(0.65); margin-top: -40px; }
     .cinematic-title { font-size: 2.8rem; }
     .polaroid-gallery { transform: scale(0.7); }
-    }
+                  }
     
