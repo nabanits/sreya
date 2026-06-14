@@ -1,18 +1,21 @@
 const audio = document.getElementById('bg-music');
 const arrow = document.getElementById('audio-arrow');
 const replayPopup = document.getElementById('replay-popup');
-let typingActive = false; // Flag to prevent typing bug
+let shuffleInterval;
+let positions = ['pos-1', 'pos-2', 'pos-3'];
 
-// --- 1. THEME & AUDIO INITIALIZATION ---
+// Pure SVG Tulip Path used for both Background and Confetti
+const svgTulipPath = "M12,22 C18,22 20,15 20,11 L4,11 C4,15 6,22 12,22 Z M4,11 L9,3 L12,11 Z M20,11 L15,3 L12,11 Z M9,11 L12,1 L15,11 Z";
+
+// --- 1. INITIALIZATION ---
 window.onload = function() {
-    // Generate the Parallax Background
-    generateBackgroundTulips();
+    generateBackgroundTulips(); // Draw the pure code background tulips
 
     audio.play().then(() => {
         arrow.innerHTML = 'Audio playing';
         setTimeout(() => arrow.classList.add('hidden'), 3000); 
     }).catch(e => {
-        arrow.innerHTML = 'Tap here to enable music';
+        arrow.innerHTML = 'Tap to play music';
         arrow.classList.remove('hidden');
     });
 };
@@ -51,29 +54,48 @@ function playAudioAgain() {
     replayPopup.classList.add('hidden');
 }
 
-// --- 2. STEP NAVIGATION & SEAL LOGIC ---
+// --- 2. STEP NAVIGATION & TYPING BUG FIX ---
 function goToStep(stepNumber) {
     if (audio.paused && document.getElementById('audio-control').innerText === '🔊') {
         audio.play().catch(e => console.log("Audio play failed"));
         arrow.classList.add('hidden');
     }
 
+    // Fade out current step
     document.querySelectorAll('.step-container').forEach(step => {
         step.classList.remove('active');
         setTimeout(() => step.classList.add('hidden'), 800); 
     });
 
+    // Specific Logic for Step 2 Typing
     if (stepNumber === 2) {
-        document.getElementById('btn2').classList.add('hidden');
-        // Reset the seal every time they visit page 2
-        document.getElementById('seal-overlay').classList.remove('broken');
-        document.getElementById('title1').style.opacity = '0';
-        document.getElementById('title2').style.opacity = '0';
-        document.getElementById('type1').innerHTML = '';
-        document.getElementById('type2').innerHTML = '';
-        typingActive = false;
+        // Ensure button is hidden when the slide opens
+        const btn2 = document.getElementById('btn2');
+        btn2.classList.add('hidden');
+        
+        // Wait for slide to fade in, then start typing
+        setTimeout(() => {
+            let typingCompleted = 0; 
+            const checkDone = () => {
+                typingCompleted++;
+                if (typingCompleted === 2) {
+                    // BUG FIX: Directly unhide the button when both texts finish
+                    btn2.classList.remove('hidden');
+                }
+            };
+            typeWriter('source1', 'type1', checkDone);
+            typeWriter('source2', 'type2', checkDone);
+        }, 1000);
     }
 
+    if (stepNumber === 4) {
+        setTimeout(launchConfetti, 500);
+        startPhotoShuffle();
+    } else {
+        if(shuffleInterval) clearInterval(shuffleInterval);
+    }
+
+    // Fade in new step
     setTimeout(() => {
         const nextStep = document.getElementById('step' + stepNumber);
         nextStep.classList.remove('hidden');
@@ -81,34 +103,7 @@ function goToStep(stepNumber) {
     }, 800);
 }
 
-// Breaking the Glass Seal on Page 2
-function breakSeal() {
-    if (typingActive) return; // Prevent double clicks
-    typingActive = true;
-    
-    // Break animation
-    document.getElementById('seal-overlay').classList.add('broken');
-    
-    // Wait for glass to slide away, then fade in titles and start typing
-    setTimeout(() => {
-        document.getElementById('title1').style.opacity = '1';
-        document.getElementById('title2').style.opacity = '1';
-        document.getElementById('title1').style.transition = 'opacity 0.5s';
-        document.getElementById('title2').style.transition = 'opacity 0.5s';
-        
-        let typingCompleted = 0; 
-        const checkDone = () => {
-            typingCompleted++;
-            if (typingCompleted === 2) {
-                document.getElementById('btn2').classList.remove('hidden');
-            }
-        };
-        typeWriter('source1', 'type1', checkDone);
-        typeWriter('source2', 'type2', checkDone);
-    }, 1200); // 1.2s matches CSS transition time
-}
-
-// Live Typing
+// Bulletproof Live Typing
 function typeWriter(sourceId, targetId, callback) {
     const text = document.getElementById(sourceId).innerHTML;
     const target = document.getElementById(targetId);
@@ -132,19 +127,22 @@ function typeWriter(sourceId, targetId, callback) {
     type();
 }
 
-// --- 3. BACKGROUND WIND TULIPS ---
+// --- 3. BACKGROUND WIND TULIPS (Pure SVG Code) ---
 function generateBackgroundTulips() {
     const container = document.getElementById('parallax-bg-container');
-    const numTulips = window.innerWidth < 600 ? 8 : 15; // Keep it sparse and elegant
+    const numTulips = window.innerWidth < 600 ? 12 : 20; 
     
     for (let i = 0; i < numTulips; i++) {
         let tulip = document.createElement('div');
         tulip.classList.add('parallax-tulip');
         
-        let size = Math.random() * 150 + 50; // Size 50px to 200px
-        let blur = Math.random() * 8 + 2; // Blur 2px to 10px for depth
-        let rot = Math.random() * 40 - 20; // Initial rotation tilt
-        let speed = Math.random() * 5 + 4; // Wind sway speed
+        // Inject the pure SVG path
+        tulip.innerHTML = `<svg viewBox="0 0 24 24"><path d="${svgTulipPath}"/></svg>`;
+        
+        let size = Math.random() * 150 + 50; 
+        let blur = Math.random() * 8 + 2; 
+        let rot = Math.random() * 40 - 20; 
+        let speed = Math.random() * 5 + 4; 
 
         tulip.style.width = `${size}px`;
         tulip.style.height = `${size}px`;
@@ -159,25 +157,21 @@ function generateBackgroundTulips() {
     }
 }
 
-// --- 4. THE CUSTOM SVG CONFETTI ENGINE ---
+// --- 4. THE CUSTOM SVG CONFETTI ENGINE (No missing images!) ---
 function launchConfetti() {
     const container = document.getElementById('confetti-canvas');
     
-    // The raw SVG path for a perfect tulip shape
-    const tulipPath = "M12,22 C18,22 20,15 20,11 L4,11 C4,15 6,22 12,22 Z M4,11 L9,3 L12,11 Z M20,11 L15,3 L12,11 Z M9,11 L12,1 L15,11 Z";
-    
-    // A premium color palette including white, pinks, mauve, and soft yellow
+    // Premium color palette for the tulips
     const colors = ['#ffffff', '#ff66b2', '#ff99cc', '#d8b4e2', '#fde2bb'];
 
     for (let i = 0; i < 45; i++) {
         let conf = document.createElement('div');
         conf.classList.add('confetti-piece');
         
-        // Pick a random real color from our palette
         let color = colors[Math.floor(Math.random() * colors.length)];
         
-        // Inject the SVG directly into the HTML
-        conf.innerHTML = `<svg viewBox="0 0 24 24" fill="${color}" width="100%" height="100%"><path d="${tulipPath}"/></svg>`;
+        // Inject the SVG directly into the HTML with the chosen color
+        conf.innerHTML = `<svg viewBox="0 0 24 24" fill="${color}" width="100%" height="100%"><path d="${svgTulipPath}"/></svg>`;
 
         conf.style.left = Math.random() * 100 + 'vw';
         conf.style.top = '-10vh'; 
@@ -192,7 +186,19 @@ function launchConfetti() {
     }
 }
 
-// --- 5. CINEMATIC LIGHTBOX ---
+// --- 5. PHOTO GALLERY & LIGHTBOX ---
+function startPhotoShuffle() {
+    const photos = document.querySelectorAll('.polaroid');
+    if (shuffleInterval) clearInterval(shuffleInterval);
+    
+    shuffleInterval = setInterval(() => {
+        positions.unshift(positions.pop()); 
+        photos.forEach((photo, index) => {
+            photo.className = 'polaroid ' + positions[index];
+        });
+    }, 3500); 
+}
+
 function openModal(imgSrc) {
     const modal = document.getElementById('image-modal');
     const expandedImg = document.getElementById('expanded-img');
@@ -204,5 +210,4 @@ function openModal(imgSrc) {
 function closeModal() {
     const modal = document.getElementById('image-modal');
     modal.classList.remove('active'); 
-               }
-            
+}
