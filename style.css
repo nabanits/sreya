@@ -51,7 +51,7 @@ html, body {
     font-size: 15rem; opacity: 0.05; pointer-events: none; z-index: 0; user-select: none;
     filter: grayscale(20%) sepia(30%) hue-rotate(300deg);
 }
-.massive-watermark { font-size: 22rem; opacity: 0.04; }
+.massive-watermark { font-size: 22rem; opacity: 0.20; }
 .vault-wrapper { position: relative; }
 
 /* --- AUDIO & NAVIGATION CONTROLS --- */
