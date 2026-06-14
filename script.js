@@ -4,7 +4,7 @@ const audio = document.getElementById('bg-music');
 const arrow = document.getElementById('audio-arrow');
 const replayPopup = document.getElementById('replay-popup');
 
-// Audio Logic & Arrow Handling
+// Audio Logic
 window.onload = function() {
     audio.play().then(() => {
         arrow.innerHTML = 'Click to mute <span>➔</span>';
@@ -39,7 +39,7 @@ function playAudioAgain() {
     replayPopup.classList.add('hidden');
 }
 
-// Navigation Logic (Unified across all pages)
+// Navigation Logic (BUG FIXED)
 function goToStep(stepNumber) {
     if (audio.paused && document.getElementById('audio-control').innerText === '🔊') {
         audio.play().catch(e => console.log("Audio play failed"));
@@ -52,9 +52,23 @@ function goToStep(stepNumber) {
     });
 
     if (stepNumber === 2) {
-        // Typing logic handled automatically by class typing-target
+        // Hide the button initially
+        document.getElementById('btn2').classList.add('hidden');
+        
+        setTimeout(() => {
+            // FIX: Reset typingCompleted to 0 EVERY TIME step 2 opens
+            let typingCompleted = 0; 
+            const checkDone = () => {
+                typingCompleted++;
+                if (typingCompleted === 2) {
+                    document.getElementById('btn2').classList.remove('hidden');
+                }
+            };
+            typeWriter('source1', 'type1', checkDone);
+            typeWriter('source2', 'type2', checkDone);
+        }, 800);
     }
-    
+
     if (stepNumber === 4) {
         setTimeout(launchConfetti, 300);
         startPhotoShuffle();
@@ -69,13 +83,37 @@ function goToStep(stepNumber) {
     }, 600);
 }
 
-// Typing chat is handled by class-based automation from context conversations
+// Bulletproof Live Typing
+function typeWriter(sourceId, targetId, callback) {
+    const text = document.getElementById(sourceId).innerHTML;
+    const target = document.getElementById(targetId);
+
+    if (target.typingTimer) {
+        clearTimeout(target.typingTimer);
+    }
+
+    target.innerHTML = ''; 
+    target.classList.add('typing-target'); 
+    let i = 0;
+
+    function type() {
+        if (i < text.length) {
+            target.innerHTML += text.charAt(i);
+            i++;
+            target.typingTimer = setTimeout(type, 35);
+        } else {
+            target.classList.remove('typing-target'); 
+            if (callback) callback();
+        }
+    }
+    type();
+}
 
 // Photo Shuffle
 function startPhotoShuffle() {
     const photos = document.querySelectorAll('.polaroid');
     if (shuffleInterval) clearInterval(shuffleInterval);
-    
+
     shuffleInterval = setInterval(() => {
         positions.unshift(positions.pop()); 
         photos.forEach((photo, index) => {
@@ -84,29 +122,25 @@ function startPhotoShuffle() {
     }, 4000); 
 }
 
-// Upgraded Multi-Colored Tulip Engine
+// Multi-Colored Tulip Engine
 function launchConfetti() {
     const container = document.getElementById('confetti-canvas');
     
-    // 50 tulips is the sweet spot so it doesn't crowd the screen
     for (let i = 0; i < 50; i++) {
         let conf = document.createElement('div');
         conf.classList.add('confetti-piece');
         conf.innerText = '🌷'; 
         
-        // Random horizontal start
         conf.style.left = Math.random() * 100 + 'vw';
         conf.style.top = '-40px'; 
 
-        // CSS Magic: Shifts the color of the emoji to create yellow, blue, purple, etc.
         let hueShift = Math.floor(Math.random() * 360);
         conf.style.filter = `hue-rotate(${hueShift}deg)`;
 
-        // Randomize the spin direction (clockwise or counter-clockwise)
         let spinDirection = Math.random() > 0.5 ? 1 : -1;
         conf.style.setProperty('--spin', spinDirection);
 
-        let duration = Math.random() * 4 + 4; // Slightly slower, floatier fall for flowers
+        let duration = Math.random() * 4 + 4; 
         let delay = Math.random() * 2;
         
         conf.style.animation = `flowerFall ${duration}s linear ${delay}s forwards`;
@@ -116,97 +150,17 @@ function launchConfetti() {
     }
 }
 
-// ==========================================
-// THE NEW JAVASCRIPT LIVE PLEXUS BACKGROUND (from context)
-// ==========================================
-const canvas = document.getElementById('plexus-network');
-const ctx = canvas.getContext('2d');
-
-let width, height;
-function setSize() {
-    width = canvas.width = window.innerWidth;
-    height = canvas.height = window.innerHeight;
-}
-setSize();
-window.addEventListener('resize', setSize);
-
-const particles = [];
-const particleCount = window.innerWidth < 600 ? 40 : 80; 
-const maxLineDist = 120;
-
-class Particle {
-    constructor() {
-        this.x = Math.random() * width;
-        this.y = Math.random() * height;
-        this.vx = (Math.random() - 0.5) * 0.5;
-        this.vy = (Math.random() - 0.5) * 0.5;
-        this.radius = Math.random() * 1.5 + 0.5;
-    }
-    draw() {
-        ctx.beginPath();
-        ctx.arc(this.x, this.y, this.radius, 0, Math.PI * 2);
-        ctx.fillStyle = 'rgba(0, 255, 255, 0.8)'; 
-        ctx.fill();
-    }
-    update() {
-        this.x += this.vx;
-        this.y += this.vy;
-        if (this.x < 0 || this.x > width) this.vx = -this.vx;
-        if (this.y < 0 || this.y > height) this.vy = -this.vy;
-    }
-}
-
-for (let i = 0; i < particleCount; i++) {
-    particles.push(new Particle());
-}
-
-function drawConnections() {
-    for (let i = 0; i < particles.length; i++) {
-        for (let j = i + 1; j < particles.length; j++) {
-            const p1 = particles[i];
-            const p2 = particles[j];
-            const dx = p1.x - p2.x;
-            const dy = p1.y - p2.y;
-            const dist = Math.sqrt(dx * dx + dy * dy);
-
-            if (dist < maxLineDist) {
-                ctx.beginPath();
-                ctx.moveTo(p1.x, p1.y);
-                ctx.lineTo(p2.x, p2.y);
-                const opacity = 1 - (dist / maxLineDist);
-                ctx.strokeStyle = `rgba(255, 0, 255, ${opacity * 0.5})`; 
-                ctx.lineWidth = 1;
-                ctx.stroke();
-            }
-        }
-    }
-}
-
-function animate() {
-    ctx.clearRect(0, 0, width, height);
-    particles.forEach(particle => {
-        particle.update();
-        particle.draw();
-    });
-    drawConnections();
-    requestAnimationFrame(animate);
-}
-
-animate();
-
-// ==========================================
-// FULLSCREEN IMAGE POPUP LOGIC (modal / lightbox)
-// ==========================================
+// FULLSCREEN IMAGE POPUP LOGIC
 function openModal(imgSrc) {
     const modal = document.getElementById('image-modal');
     const expandedImg = document.getElementById('expanded-img');
-    
-    expandedImg.src = imgSrc; // Sets the high-res image
-    modal.classList.add('active'); // Fades the modal in
+
+    expandedImg.src = imgSrc; 
+    modal.classList.add('active'); 
 }
 
 function closeModal() {
     const modal = document.getElementById('image-modal');
-    modal.classList.remove('active'); // Fades the modal out
-          }
-          
+    modal.classList.remove('active'); 
+            }
+    
