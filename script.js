@@ -4,7 +4,7 @@ const audio = document.getElementById('bg-music');
 const arrow = document.getElementById('audio-arrow');
 const replayPopup = document.getElementById('replay-popup');
 
-// Audio Logic
+// Audio Logic & Arrow Handling
 window.onload = function() {
     audio.play().then(() => {
         arrow.innerHTML = 'Click to mute <span>➔</span>';
@@ -39,7 +39,7 @@ function playAudioAgain() {
     replayPopup.classList.add('hidden');
 }
 
-// Navigation Logic (BUG FIXED)
+// Navigation Logic (Unified across all pages)
 function goToStep(stepNumber) {
     if (audio.paused && document.getElementById('audio-control').innerText === '🔊') {
         audio.play().catch(e => console.log("Audio play failed"));
@@ -68,7 +68,7 @@ function goToStep(stepNumber) {
             typeWriter('source2', 'type2', checkDone);
         }, 800);
     }
-
+    
     if (stepNumber === 4) {
         setTimeout(launchConfetti, 300);
         startPhotoShuffle();
@@ -113,7 +113,7 @@ function typeWriter(sourceId, targetId, callback) {
 function startPhotoShuffle() {
     const photos = document.querySelectorAll('.polaroid');
     if (shuffleInterval) clearInterval(shuffleInterval);
-
+    
     shuffleInterval = setInterval(() => {
         positions.unshift(positions.pop()); 
         photos.forEach((photo, index) => {
@@ -122,45 +122,45 @@ function startPhotoShuffle() {
     }, 4000); 
 }
 
-// Multi-Colored Tulip Engine
+// Upgraded Tulip Confetti Engine
 function launchConfetti() {
     const container = document.getElementById('confetti-canvas');
     
-    for (let i = 0; i < 50; i++) {
+    // We create tulips and shift their color randomly
+    for (let i = 0; i < 40; i++) {
         let conf = document.createElement('div');
         conf.classList.add('confetti-piece');
-        conf.innerText = '🌷'; 
-        
-        conf.style.left = Math.random() * 100 + 'vw';
-        conf.style.top = '-40px'; 
+        conf.innerText = '🌷'; // Standard pink tulip
 
+        conf.style.left = Math.random() * 100 + 'vw';
+        conf.style.top = '-10px'; 
+        
+        // CSS Magic: Shifts the color of the pink emoji to create yellow, blue, etc.
         let hueShift = Math.floor(Math.random() * 360);
         conf.style.filter = `hue-rotate(${hueShift}deg)`;
 
-        let spinDirection = Math.random() > 0.5 ? 1 : -1;
-        conf.style.setProperty('--spin', spinDirection);
-
-        let duration = Math.random() * 4 + 4; 
+        let duration = Math.random() * 3 + 3; 
         let delay = Math.random() * 2;
-        
         conf.style.animation = `flowerFall ${duration}s linear ${delay}s forwards`;
-
+        
         conf.addEventListener('animationend', () => conf.remove());
         container.appendChild(conf);
     }
 }
 
-// FULLSCREEN IMAGE POPUP LOGIC
+// ==========================================
+// FULLSCREEN IMAGE POPUP LOGIC ( modal / lightbox)
+// ==========================================
 function openModal(imgSrc) {
     const modal = document.getElementById('image-modal');
     const expandedImg = document.getElementById('expanded-img');
-
-    expandedImg.src = imgSrc; 
-    modal.classList.add('active'); 
+    
+    expandedImg.src = imgSrc; // Sets the high-res image
+    modal.classList.add('active'); // Fades the modal in
 }
 
 function closeModal() {
     const modal = document.getElementById('image-modal');
-    modal.classList.remove('active'); 
-            }
-    
+    modal.classList.remove('active'); // Fades the modal out
+    }
+        
