@@ -106,21 +106,20 @@ function typeWriter(sourceId, targetId, callback) {
     }
     type();
 }
-
-// --- 3. CANVAS PETAL ENGINE (Integrated from User Code) ---
+// --- 3. CANVAS PETAL ENGINE (Bulletproof Mobile Fix) ---
 function initPetals() {
     const canvas = document.getElementById("petal-canvas");
     const ctx = canvas.getContext("2d");
 
-    let W = 0, H = 0, DPR = 1;
+    let W, H, DPR;
 
     function resize() {
-        DPR = Math.min(window.devicePixelRatio || 1, 2);
         W = window.innerWidth;
         H = window.innerHeight;
-        canvas.width = Math.floor(W * DPR);
-        canvas.height = Math.floor(H * DPR);
-        ctx.setTransform(DPR, 0, 0, DPR, 0, 0);
+        DPR = window.devicePixelRatio || 1;
+        // Lock the internal canvas resolution
+        canvas.width = W * DPR;
+        canvas.height = H * DPR;
     }
 
     window.addEventListener("resize", resize);
@@ -150,9 +149,10 @@ function initPetals() {
 
     function drawPetal(p) {
         ctx.save();
-        ctx.translate(p.x, p.y);
+        // Scale everything perfectly for high-res mobile screens
+        ctx.translate(p.x * DPR, p.y * DPR);
         ctx.rotate(p.rot);
-        ctx.scale(p.s, p.s);
+        ctx.scale(p.s * DPR, p.s * DPR);
         ctx.globalAlpha = p.alpha;
 
         const g = ctx.createLinearGradient(0, -12, 0, 12);
@@ -172,7 +172,9 @@ function initPetals() {
     }
 
     function animate() {
-        ctx.clearRect(0, 0, W, H);
+        // THE FIX: Absolutely force the canvas to wipe clean every frame
+        ctx.setTransform(1, 0, 0, 1, 0, 0);
+        ctx.clearRect(0, 0, canvas.width, canvas.height);
 
         for (const p of petals) {
             p.x += p.vx + Math.sin(p.wave) * 0.35;
@@ -195,7 +197,7 @@ function initPetals() {
 
     animate();
 }
-
+    
 // --- 4. PHOTO GALLERY & LIGHTBOX ---
 function startPhotoShuffle() {
     const photos = document.querySelectorAll('.polaroid');
