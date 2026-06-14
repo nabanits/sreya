@@ -4,13 +4,8 @@ const replayPopup = document.getElementById('replay-popup');
 let shuffleInterval;
 let positions = ['pos-1', 'pos-2', 'pos-3'];
 
-// Pure SVG Tulip Path used for both Background and Confetti
-const svgTulipPath = "M12,22 C18,22 20,15 20,11 L4,11 C4,15 6,22 12,22 Z M4,11 L9,3 L12,11 Z M20,11 L15,3 L12,11 Z M9,11 L12,1 L15,11 Z";
-
 // --- 1. INITIALIZATION ---
 window.onload = function() {
-    generateBackgroundTulips(); // Draw the pure code background tulips
-
     audio.play().then(() => {
         arrow.innerHTML = 'Audio playing';
         setTimeout(() => arrow.classList.add('hidden'), 3000); 
@@ -19,16 +14,6 @@ window.onload = function() {
         arrow.classList.remove('hidden');
     });
 };
-
-function toggleTheme() {
-    document.body.classList.toggle('light-mode');
-    const toggleBtn = document.getElementById('theme-toggle');
-    if(document.body.classList.contains('light-mode')) {
-        toggleBtn.innerText = '🌙';
-    } else {
-        toggleBtn.innerText = '☀️';
-    }
-}
 
 function toggleAudio() {
     const btn = document.getElementById('audio-control');
@@ -127,66 +112,44 @@ function typeWriter(sourceId, targetId, callback) {
     type();
 }
 
-// --- 3. BACKGROUND WIND TULIPS (Pure SVG Code) ---
-function generateBackgroundTulips() {
-    const container = document.getElementById('parallax-bg-container');
-    const numTulips = window.innerWidth < 600 ? 12 : 20; 
-    
-    for (let i = 0; i < numTulips; i++) {
-        let tulip = document.createElement('div');
-        tulip.classList.add('parallax-tulip');
-        
-        // Inject the pure SVG path
-        tulip.innerHTML = `<svg viewBox="0 0 24 24"><path d="${svgTulipPath}"/></svg>`;
-        
-        let size = Math.random() * 150 + 50; 
-        let blur = Math.random() * 8 + 2; 
-        let rot = Math.random() * 40 - 20; 
-        let speed = Math.random() * 5 + 4; 
-
-        tulip.style.width = `${size}px`;
-        tulip.style.height = `${size}px`;
-        tulip.style.left = `${Math.random() * 100}vw`;
-        tulip.style.top = `${Math.random() * 100}vh`;
-        
-        tulip.style.setProperty('--blur-amt', `${blur}px`);
-        tulip.style.setProperty('--rot', `${rot}deg`);
-        tulip.style.setProperty('--speed', `${speed}s`);
-
-        container.appendChild(tulip);
-    }
-}
-
-// --- 4. THE CUSTOM SVG CONFETTI ENGINE (No missing images!) ---
+// --- 3. CUSTOM CSS PETAL CONFETTI ---
 function launchConfetti() {
     const container = document.getElementById('confetti-canvas');
     
-    // Premium color palette for the tulips
-    const colors = ['#ffffff', '#ff66b2', '#ff99cc', '#d8b4e2', '#fde2bb'];
+    // Premium color gradients for realistic petals
+    const petalColors = [
+        'linear-gradient(135deg, #ff9a9e 0%, #fecfef 100%)', // Soft Pink
+        'linear-gradient(135deg, #ffdde1 0%, #ee9ca7 100%)', // Rose
+        'linear-gradient(135deg, #ffffff 0%, #fdfbfb 100%)', // White
+        'linear-gradient(135deg, #f6d365 0%, #fda085 100%)'  // Warm Peach
+    ];
 
-    for (let i = 0; i < 45; i++) {
+    for (let i = 0; i < 60; i++) {
         let conf = document.createElement('div');
-        conf.classList.add('confetti-piece');
+        conf.classList.add('petal'); // Uses the petal CSS class shape
         
-        let color = colors[Math.floor(Math.random() * colors.length)];
-        
-        // Inject the SVG directly into the HTML with the chosen color
-        conf.innerHTML = `<svg viewBox="0 0 24 24" fill="${color}" width="100%" height="100%"><path d="${svgTulipPath}"/></svg>`;
+        let color = petalColors[Math.floor(Math.random() * petalColors.length)];
+        conf.style.background = color;
+
+        // Randomize size slightly
+        let scale = Math.random() * 0.5 + 0.8;
+        conf.style.width = `${15 * scale}px`;
+        conf.style.height = `${25 * scale}px`;
 
         conf.style.left = Math.random() * 100 + 'vw';
         conf.style.top = '-10vh'; 
 
-        let duration = Math.random() * 4 + 4; 
-        let delay = Math.random() * 2;
+        let duration = Math.random() * 5 + 4; 
+        let delay = Math.random() * 3;
         
-        conf.style.animation = `svgFall ${duration}s linear ${delay}s forwards`;
+        conf.style.animation = `petalFall ${duration}s linear ${delay}s forwards`;
         
         conf.addEventListener('animationend', () => conf.remove());
         container.appendChild(conf);
     }
 }
 
-// --- 5. PHOTO GALLERY & LIGHTBOX ---
+// --- 4. PHOTO GALLERY & LIGHTBOX ---
 function startPhotoShuffle() {
     const photos = document.querySelectorAll('.polaroid');
     if (shuffleInterval) clearInterval(shuffleInterval);
@@ -210,4 +173,5 @@ function openModal(imgSrc) {
 function closeModal() {
     const modal = document.getElementById('image-modal');
     modal.classList.remove('active'); 
-}
+                }
+            
