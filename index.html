@@ -3,27 +3,23 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title>Happy 19th, Sreya</title>
+    <title>Happy Birthday, Sreya</title>
     <link rel="stylesheet" href="style.css">
     <link href="https://fonts.googleapis.com/css2?family=Montserrat:wght@300;400;500;600&family=Playfair+Display:ital,wght@0,400;0,600;0,700;1,400;1,600&display=swap" rel="stylesheet">
 </head>
 <body>
-    <div class="top-controls">
-        <div class="control-btn" id="theme-toggle" onclick="toggleTheme()">☀️</div>
-        <div class="control-btn" id="audio-control" onclick="toggleAudio()">🔊</div>
-    </div>
-    
     <audio id="bg-music" src="music.mp3" autoplay></audio>
+    <div id="audio-control" onclick="toggleAudio()">🔊</div>
     <div id="audio-arrow" class="hidden">Play Music ➔</div>
     <div id="replay-popup" class="hidden" onclick="playAudioAgain()">Replay Track 🎵</div>
 
-    <div class="luxury-vignette"></div>
-    <div id="parallax-bg-container"></div>
+    <div class="real-tulip-bg"></div>
+    <div class="glass-wash"></div>
 
     <div id="step1" class="step-container active">
         <div class="content-wrapper text-center">
             <h4 class="kicker-text">A VERY SPECIAL DAY</h4>
-            <h1 class="cinematic-title">Happy Birthday,<br><span class="accent-gold">Sreya.</span></h1>
+            <h1 class="cinematic-title">Happy Birthday,<br><span class="accent-pink">Sreya.</span></h1>
             
             <div class="elegant-cake-container mt-30">
                 <div class="cake-3d">
@@ -43,7 +39,7 @@
         <button class="nav-back" onclick="goToStep(1)"><span>←</span> Return</button>
         
         <div class="console-wrapper">
-            <div class="obsidian-glass" id="chat-console">
+            <div class="frosted-glass" id="chat-console">
                 <div class="glass-header">
                     <div class="dot red"></div><div class="dot yellow"></div><div class="dot green"></div>
                 </div>
@@ -51,7 +47,7 @@
                     <h2 class="editorial-title" id="title1">A Minor Detail 😉</h2>
                     <p class="chat-text typing-target" id="type1"></p>
                     <div class="luxury-divider"></div>
-                    <h2 class="editorial-title accent-gold" id="title2">Jokes Aside ✨</h2>
+                    <h2 class="editorial-title accent-pink" id="title2">Jokes Aside ✨</h2>
                     <p class="chat-text typing-target" id="type2"></p>
                 </div>
                 <button class="luxury-btn mt-30 w-100 hidden" id="btn2" onclick="goToStep(3)">Read the Melody 📜</button>
@@ -65,8 +61,7 @@
     <div id="step3" class="step-container hidden">
         <button class="nav-back" onclick="goToStep(2)"><span>←</span> Return</button>
         <div class="content-wrapper text-center w-100">
-            <div class="obsidian-glass anthem-card">
-                <div class="watermark-icon">🌷</div>
+            <div class="frosted-glass anthem-card">
                 <h2 class="editorial-title massive-title">The Birthday Anthem</h2>
                 <div class="lyrics-text">
                     Happy birthday to you, dear Sreya<br>
@@ -80,7 +75,7 @@
                     The nicest friend I could ever find<br>
                     Happy birthday Sreya<br>
                     Sreya, you're the best!<br><br>
-                    <span class="accent-gold italic-pop">Happy birthday! Yay! 🎉</span>
+                    <span class="accent-pink italic-pop">Happy birthday! Yay! 🎉</span>
                 </div>
             </div>
             <button class="luxury-btn mt-40" onclick="goToStep(4)">Unlock the Vault 📸</button>
@@ -93,7 +88,7 @@
         
         <div class="content-wrapper text-center w-100">
             <h4 class="kicker-text">THE ARCHIVES</h4>
-            <h2 class="cinematic-title accent-gold" style="font-size: 3rem;">Memory Vault</h2>
+            <h2 class="cinematic-title accent-pink" style="font-size: 3.5rem;">Memory Vault</h2>
             
             <div class="polaroid-gallery mt-30">
                 <div class="polaroid pos-1" onclick="openModal('photo1.jpg')"><img src="photo1.jpg" alt="Memory 1"><div class="frame-glare"></div></div>
@@ -102,7 +97,7 @@
             </div>
 
             <p class="final-wish mt-40">Have some class and make this year incredible! 🥂</p>
-            <button class="luxury-btn outline-btn mt-30" onclick="launchConfetti()">Shower Tulips 🌷</button>
+            <button class="luxury-btn outline-btn mt-30" onclick="launchConfetti()">Shower Petals 🌸</button>
         </div>
     </div>
 
