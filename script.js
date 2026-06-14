@@ -1,14 +1,12 @@
 const audio = document.getElementById('bg-music');
 const arrow = document.getElementById('audio-arrow');
-const replayPopup = document.getElementById('replay-popup');
 let shuffleInterval;
 let positions = ['pos-1', 'pos-2', 'pos-3'];
 
 // --- 1. INITIALIZATION ---
 window.onload = function() {
     audio.play().then(() => {
-        arrow.innerHTML = 'Audio playing';
-        setTimeout(() => arrow.classList.add('hidden'), 3000); 
+        arrow.classList.add('hidden');
     }).catch(e => {
         arrow.innerHTML = 'Tap to play music';
         arrow.classList.remove('hidden');
@@ -25,18 +23,6 @@ function toggleAudio() {
         audio.pause();
         btn.innerText = '🔇';
     }
-}
-
-audio.addEventListener('ended', () => {
-    document.getElementById('audio-control').innerText = '🔇';
-    replayPopup.classList.remove('hidden');
-});
-
-function playAudioAgain() {
-    audio.currentTime = 0;
-    audio.play();
-    document.getElementById('audio-control').innerText = '🔊';
-    replayPopup.classList.add('hidden');
 }
 
 // --- 2. STEP NAVIGATION & BUG-FREE TYPING ---
@@ -84,7 +70,7 @@ function goToStep(stepNumber) {
     }, 600);
 }
 
-// Bulletproof Typing (Properly handles Emojis!)
+// Bulletproof Typing Engine
 function typeWriter(sourceId, targetId, callback) {
     const text = document.getElementById(sourceId).innerHTML;
     const target = document.getElementById(targetId);
@@ -94,7 +80,7 @@ function typeWriter(sourceId, targetId, callback) {
     target.innerHTML = ''; 
     target.classList.add('typing-target'); 
     
-    // Using Array.from safely splits emojis without breaking them in half
+    // Safely handles emojis without breaking
     const chars = Array.from(text);
     let i = 0;
 
@@ -111,38 +97,35 @@ function typeWriter(sourceId, targetId, callback) {
     type();
 }
 
-// --- 3. CUSTOM SVG TULIP CONFETTI ---
+// --- 3. CUSTOM PINK & WHITE SVG TULIP SHOWER ---
 function launchConfetti() {
     const container = document.getElementById('confetti-canvas');
     
-    // A highly detailed, beautiful SVG path of a tulip blossom
-    const beautifulTulipSVG = `
-        <svg viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
-            <path d="M12 2C12 2 5 6 5 13C5 17 8 21 12 22C16 21 19 17 19 13C19 6 12 2 12 2Z" fill="var(--tulip-color)"/>
-            <path d="M12 2C12 2 9 7 9 13C9 17 10.5 20.5 12 22" stroke="rgba(255,255,255,0.4)" stroke-width="0.5" fill="none"/>
-            <path d="M12 2C12 2 15 7 15 13C15 17 13.5 20.5 12 22" stroke="rgba(255,255,255,0.4)" stroke-width="0.5" fill="none"/>
-        </svg>
-    `;
+    // A clean, beautiful SVG path of a tulip blossom
+    const tulipPath = "M12 2c0 0-7 4-7 11 0 4 3 8 7 9 4-1 7-5 7-9 0-7-7-11-7-11z M12 22 L12 13 M9 21 c0 0 3-11 3-11 M15 21 c0 0-3-11-3-11";
 
-    // Premium realistic tulip colors: Soft Pink, Hot Pink, Cream, Soft Yellow, Mauve
-    const colors = ['#FFB6C1', '#FF69B4', '#FFF5EE', '#FDE882', '#DDA0DD'];
+    // Strictly Pink and White colors
+    const colors = ['#ffffff', '#ffb6c1', '#ff69b4', '#ffe4e1'];
 
-    for (let i = 0; i < 40; i++) {
+    for (let i = 0; i < 50; i++) {
         let conf = document.createElement('div');
         conf.classList.add('svg-tulip');
         
         let color = colors[Math.floor(Math.random() * colors.length)];
-        conf.style.setProperty('--tulip-color', color);
         
-        conf.innerHTML = beautifulTulipSVG;
+        conf.innerHTML = `<svg viewBox="0 0 24 24" fill="${color}" stroke="rgba(255,255,255,0.8)" stroke-width="0.5" xmlns="http://www.w3.org/2000/svg"><path d="${tulipPath}"/></svg>`;
 
         conf.style.left = Math.random() * 100 + 'vw';
         conf.style.top = '-10vh'; 
+        
+        // Randomize the fall rotation so it looks natural
+        let endRot = (Math.random() * 360) + 180;
+        conf.style.setProperty('--rot-end', `${endRot}deg`);
 
-        let duration = Math.random() * 4 + 4; 
+        let duration = Math.random() * 3 + 4; // Falls in 4 to 7 seconds
         let delay = Math.random() * 2;
         
-        conf.style.animation = `svgFall ${duration}s linear ${delay}s forwards`;
+        conf.style.animation = `svgFall ${duration}s ease-in ${delay}s forwards`;
         
         conf.addEventListener('animationend', () => conf.remove());
         container.appendChild(conf);
@@ -173,4 +156,5 @@ function openModal(imgSrc) {
 function closeModal() {
     const modal = document.getElementById('image-modal');
     modal.classList.remove('active'); 
-}
+                                      }
+            
