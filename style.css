@@ -1,218 +1,207 @@
 :root {
-    --pk-accent: #ff00ff; /* Neon Magenta */
-    --pp-accent: #b200ff; /* Deep Violet */
-    --bl-accent: #00ffcc; /* Cyan for contrast */
-    --glass-bg: rgba(15, 10, 25, 0.7); /* Deep dark purple glass */
-    --glass-border: rgba(255, 0, 255, 0.25);
-    --font-heading: 'Great Vibes', cursive;
-    --font-body: 'Montserrat', sans-serif;
-    --font-royal: 'Playfair Display', serif;
+    --gold-accent: #E5B5B8; /* Rose Gold / Champagne */
+    --gold-glow: rgba(229, 181, 184, 0.4);
+    --bg-dark: #0B0710; /* Deep Obsidian Plum */
+    --bg-light: #1A0B20;
+    --glass-bg: rgba(20, 10, 25, 0.45);
+    --glass-border: rgba(229, 181, 184, 0.15);
+    
+    --font-editorial: 'Playfair Display', serif;
+    --font-modern: 'Montserrat', sans-serif;
 }
 
 * { box-sizing: border-box; margin: 0; padding: 0; }
 
 html, body { 
-    background-color: #05020a !important; /* Pitch dark purple/black */
-    color: #ffffff; 
-    font-family: var(--font-body); 
-    overflow-x: hidden; 
-    overflow-y: auto; 
-    min-height: 100vh; 
-    width: 100vw;
+    background-color: var(--bg-dark);
+    color: #F3E5D8; /* Soft champagne white */
+    font-family: var(--font-modern); 
+    overflow-x: hidden; overflow-y: auto; 
+    min-height: 100vh; width: 100vw;
 }
 
-/* --- THE NEW MIDNIGHT GARDEN BACKGROUND --- */
-.dark-garden-overlay {
+/* --- CINEMATIC AMBIENT LIGHTING --- */
+.luxury-vignette {
     position: fixed; top: 0; left: 0; width: 100vw; height: 100vh;
-    z-index: 0; pointer-events: none;
-    /* Soft glowing orbs of dark green and magenta to simulate a mystical garden at night */
-    background: radial-gradient(circle at 15% 85%, rgba(0, 50, 20, 0.4), transparent 50%),
-                radial-gradient(circle at 85% 15%, rgba(100, 0, 100, 0.3), transparent 50%);
+    background: radial-gradient(circle at center, transparent 40%, #000000 120%);
+    z-index: 1; pointer-events: none;
 }
-
-/* Container for the 3D moving background tulips */
-#bg-tulips {
-    position: fixed; top: 0; left: 0; width: 100vw; height: 100vh;
-    z-index: 0; pointer-events: none; overflow: hidden;
-    perspective: 800px; /* This gives the true 3D depth effect */
+.ambient-glow {
+    position: fixed; border-radius: 50%; filter: blur(120px); z-index: 0; pointer-events: none; opacity: 0.5;
 }
+.orb-1 { width: 50vw; height: 50vw; background: #2A0835; top: -10%; left: -10%; }
+.orb-2 { width: 60vw; height: 60vw; background: #351A25; bottom: -20%; right: -10%; }
 
-/* Individual 3D Tulip */
+/* Cinematic Bokeh Tulips (Background) */
+#bg-tulips { position: fixed; top: 0; left: 0; width: 100vw; height: 100vh; z-index: 0; pointer-events: none; perspective: 1000px; }
 .bg-tulip {
     position: absolute; transform-style: preserve-3d; opacity: 0;
-    filter: drop-shadow(0 0 10px rgba(255, 255, 255, 0.1));
+    /* The magic: Heavily blurred to look like high-end out-of-focus background lights */
+    filter: blur(8px) brightness(0.6) opacity(0.4); 
 }
-
-/* 3D Tumble Animation */
 @keyframes tumble3D {
-    0% { transform: translateY(100px) rotateX(0deg) rotateY(0deg) rotateZ(0deg); opacity: 0; }
-    10% { opacity: var(--max-opacity); }
-    90% { opacity: var(--max-opacity); }
-    100% { transform: translateY(-110vh) rotateX(360deg) rotateY(180deg) rotateZ(90deg); opacity: 0; }
+    0% { transform: translateY(10vh) rotateX(0deg) rotateY(0deg); opacity: 0; }
+    20% { opacity: var(--max-opacity); }
+    80% { opacity: var(--max-opacity); }
+    100% { transform: translateY(-110vh) rotateX(360deg) rotateY(180deg); opacity: 0; }
 }
 
-
-/* Audio Controls - Back to dark theme */
+/* --- UI CONTROLS --- */
 #audio-control {
-    position: fixed; top: 20px; right: 20px; z-index: 100;
-    background: var(--glass-bg); backdrop-filter: blur(10px); border: 1px solid var(--glass-border);
+    position: fixed; top: 25px; right: 25px; z-index: 100;
+    background: rgba(0,0,0,0.5); backdrop-filter: blur(10px); border: 1px solid rgba(255,255,255,0.1);
     border-radius: 50%; width: 45px; height: 45px; display: flex; justify-content: center; align-items: center;
-    font-size: 20px; cursor: pointer; box-shadow: 0 4px 15px rgba(0,0,0,0.8); transition: 0.3s; color: #fff;
+    font-size: 18px; cursor: pointer; color: var(--gold-accent); transition: 0.3s;
 }
 #audio-arrow {
-    position: fixed; top: 32px; right: 75px; z-index: 100;
-    color: var(--pk-accent); font-family: var(--font-body); font-size: 0.85rem; font-weight: 600;
-    display: flex; align-items: center; gap: 8px; text-shadow: 0 0 10px #000; animation: bounceLeft 1s infinite;
+    position: fixed; top: 38px; right: 85px; z-index: 100;
+    color: rgba(255,255,255,0.6); font-family: var(--font-modern); font-size: 0.75rem; font-weight: 500;
+    letter-spacing: 1px; text-transform: uppercase;
 }
-@keyframes bounceLeft { 0%, 100% { transform: translateX(0); } 50% { transform: translateX(-8px); } }
-
 #replay-popup {
-    position: fixed; top: 20px; left: 50%; transform: translateX(-50%); z-index: 1000;
-    background: linear-gradient(135deg, var(--pk-accent), var(--pp-accent)); color: #fff;
-    padding: 12px 25px; border-radius: 30px; font-weight: 600; font-size: 0.9rem;
-    box-shadow: 0 5px 20px rgba(0,0,0,0.8); cursor: pointer; animation: slideDown 0.5s ease;
+    position: fixed; top: 25px; left: 50%; transform: translateX(-50%); z-index: 1000;
+    background: var(--gold-accent); color: #000; padding: 10px 25px; border-radius: 4px; 
+    font-family: var(--font-modern); font-weight: 600; font-size: 0.8rem; letter-spacing: 1px; text-transform: uppercase;
+    box-shadow: 0 10px 30px var(--gold-glow); cursor: pointer; animation: slideDown 0.5s cubic-bezier(0.4, 0, 0.2, 1);
 }
-@keyframes slideDown { from { top: -50px; opacity: 0; } to { top: 20px; opacity: 1; } }
+@keyframes slideDown { from { top: -50px; opacity: 0; } to { top: 25px; opacity: 1; } }
 
-.back-btn {
-    position: absolute; top: 20px; left: 20px; z-index: 100;
-    background: rgba(255,255,255,0.1); backdrop-filter: blur(5px);
-    border: 1px solid rgba(255,255,255,0.2); color: #fff;
-    padding: 8px 16px; border-radius: 20px; font-family: var(--font-body);
-    font-size: 0.85rem; font-weight: 500; cursor: pointer; transition: 0.3s;
+.nav-back {
+    position: absolute; top: 25px; left: 25px; z-index: 100;
+    background: transparent; border: none; color: rgba(255,255,255,0.6);
+    font-family: var(--font-modern); font-size: 0.8rem; font-weight: 500; letter-spacing: 2px;
+    text-transform: uppercase; cursor: pointer; transition: 0.3s; display: flex; align-items: center; gap: 8px;
 }
-.back-btn:hover { background: rgba(255,255,255,0.2); transform: translateX(-3px); }
+.nav-back span { font-size: 1.2rem; transition: 0.3s; }
+.nav-back:hover { color: var(--gold-accent); }
+.nav-back:hover span { transform: translateX(-5px); }
 
-/* Layout */
+/* --- LAYOUT & TYPOGRAPHY --- */
 .step-container {
     position: absolute; top: 0; left: 0; width: 100vw; min-height: 100vh;
     display: flex; justify-content: center; align-items: center; padding: 40px 20px;
-    opacity: 0; visibility: hidden; transition: opacity 0.6s, visibility 0.6s; z-index: 5;
+    opacity: 0; visibility: hidden; transition: opacity 0.8s ease, visibility 0.8s; z-index: 5;
 }
 .step-container.active { opacity: 1; visibility: visible; }
 .hidden { display: none !important; }
-.content-wrapper { z-index: 10; width: 100%; max-width: 400px; display: flex; flex-direction: column; align-items: center;}
-.text-center { text-align: center; } .w-100 { width: 100%; } .mt-30 { margin-top: 30px; } .mb-20 { margin-bottom: 20px; }
+.content-wrapper { z-index: 10; width: 100%; max-width: 450px; display: flex; flex-direction: column; align-items: center;}
+.text-center { text-align: center; } .w-100 { width: 100%; } .mt-30 { margin-top: 30px; } .mt-40 { margin-top: 40px; }
 
-/* Typography & Dark Theme Buttons */
-.cinematic-title { font-family: var(--font-heading); font-size: 4.5rem; line-height: 1.2; margin-bottom: 20px; color: #fff; text-shadow: 0 0 20px var(--pk-accent); font-weight: 400; }
-.accent-pk { color: var(--pk-accent); } .accent-pp { color: var(--pp-accent); }
-
-.premium-btn {
-    background: rgba(255, 0, 255, 0.1); color: #fff; border: 1px solid var(--pk-accent);
-    padding: 14px 30px; border-radius: 30px; font-family: var(--font-body); font-size: 0.95rem;
-    font-weight: 600; cursor: pointer; backdrop-filter: blur(5px); transition: 0.3s; box-shadow: 0 5px 20px rgba(255, 0, 255, 0.3);
-    position: relative; 
+.kicker-text {
+    font-family: var(--font-modern); font-size: 0.75rem; font-weight: 500; letter-spacing: 4px;
+    color: rgba(255,255,255,0.5); text-transform: uppercase; margin-bottom: 15px;
 }
-.premium-btn:hover { background: rgba(255, 0, 255, 0.2); transform: translateY(-3px); box-shadow: 0 10px 30px rgba(255, 0, 255, 0.5); }
+.cinematic-title { 
+    font-family: var(--font-editorial); font-size: 4rem; line-height: 1.1; 
+    font-weight: 400; font-style: italic; color: #fff; text-shadow: 0 10px 30px rgba(0,0,0,0.8);
+}
+.accent-gold { color: var(--gold-accent); }
+
+/* --- LUXURY BUTTONS --- */
+.luxury-btn {
+    background: var(--gold-accent); color: #1a0b16; border: none;
+    padding: 16px 35px; border-radius: 4px; /* Sharp corners for premium look */
+    font-family: var(--font-modern); font-size: 0.85rem; font-weight: 600; letter-spacing: 2px;
+    text-transform: uppercase; cursor: pointer; transition: all 0.4s cubic-bezier(0.4, 0, 0.2, 1);
+    box-shadow: 0 10px 30px var(--gold-glow); position: relative;
+}
+.luxury-btn:hover { transform: translateY(-3px); box-shadow: 0 15px 40px rgba(229, 181, 184, 0.6); background: #fff; }
+
+.outline-btn { background: transparent; border: 1px solid var(--gold-accent); color: var(--gold-accent); box-shadow: none; }
+.outline-btn:hover { background: var(--gold-accent); color: #000; box-shadow: 0 10px 30px var(--gold-glow); }
 
 .next-btn::before {
-    content: '👇 Click here! 👇'; position: absolute; top: -28px; left: 50%; transform: translateX(-50%);
-    font-family: var(--font-body); font-size: 0.75rem; font-weight: 700; color: var(--bl-accent); text-shadow: 0 0 10px var(--bl-accent);
-    white-space: nowrap; animation: hintBounce 1s infinite; pointer-events: none; 
+    content: 'TAP TO CONTINUE'; position: absolute; top: -30px; left: 50%; transform: translateX(-50%);
+    font-family: var(--font-modern); font-size: 0.65rem; font-weight: 500; letter-spacing: 2px;
+    color: rgba(255,255,255,0.5); white-space: nowrap; animation: pulseFade 2s infinite; pointer-events: none;
 }
+@keyframes pulseFade { 0%, 100% { opacity: 0.3; } 50% { opacity: 1; } }
 
-/* Dark Glass Panel */
-.glass-panel {
-    background: var(--glass-bg); backdrop-filter: blur(15px); border: 1px solid var(--glass-border);
-    border-radius: 20px; padding: 30px 25px; box-shadow: 0 20px 40px rgba(0,0,0,0.8); width: 100%; max-width: 400px;
+/* --- OBSIDIAN GLASS PANELS --- */
+.obsidian-glass {
+    background: var(--glass-bg); backdrop-filter: blur(25px); -webkit-backdrop-filter: blur(25px);
+    border: 1px solid var(--glass-border); border-top: 1px solid rgba(255,255,255,0.3);
+    border-radius: 16px; padding: 0; box-shadow: 0 30px 60px rgba(0,0,0,0.6); width: 100%; overflow: hidden;
 }
-.accent-title { font-family: var(--font-body); font-size: 1.6rem; font-weight: 700; margin-bottom: 10px; color: #fff; text-shadow: 0 0 10px var(--pk-accent);}
-.chat-text { color: #e2e8f0; line-height: 1.7; font-size: 0.95rem; font-weight: 400; min-height: 80px;}
-.divider { border: 0; height: 1px; background: rgba(255, 255, 255, 0.2); margin: 20px 0; }
-.typing-target::after { content: '|'; animation: blink 1s step-start infinite; color: var(--pk-accent); }
+.glass-header { background: rgba(0,0,0,0.3); padding: 12px 20px; display: flex; gap: 6px; border-bottom: 1px solid rgba(255,255,255,0.05);}
+.dot { width: 10px; height: 10px; border-radius: 50%; }
+.dot.red { background: #ff5f56; } .dot.yellow { background: #ffbd2e; } .dot.green { background: #27c93f; }
+.glass-body { padding: 35px 30px; }
 
-/* --- ROYAL LETTER (Glowing Watermark on Dark Theme) --- */
-.royal-letter {
-    background: #110e16;
-    border: 1px solid var(--pp-accent); border-radius: 8px; padding: 40px 20px 50px 20px;
-    box-shadow: 0 15px 40px rgba(0,0,0,0.9), inset 0 0 30px rgba(255,0,255,0.1);
-    position: relative; margin: 0 auto; width: 100%; overflow: hidden; 
-}
-.royal-letter::before {
-    content: '🌷'; position: absolute; top: 50%; left: 50%; transform: translate(-50%, -50%);
-    font-size: 14rem; opacity: 0.15; pointer-events: none; z-index: 0; filter: drop-shadow(0 0 20px var(--pk-accent));
-}
-.royal-title, .lyrics-text { position: relative; z-index: 1; }
-.royal-title { font-family: var(--font-heading); font-size: 3rem; color: #fff; margin-bottom: 20px; text-shadow: 0 0 15px var(--pp-accent); }
-.lyrics-text { font-family: var(--font-royal); font-size: 1.1rem; line-height: 1.7; font-style: italic; color: #ddd; font-weight: 400; }
-.wax-seal {
-    position: absolute; bottom: -25px; right: 30px; width: 60px; height: 60px;
-    background: #2a0033; border-radius: 50%; box-shadow: 0 5px 15px rgba(0,0,0,0.8), 0 0 15px var(--pk-accent);
-    display: flex; justify-content: center; align-items: center;
-    color: #fff; font-family: var(--font-heading); font-size: 30px; border: 2px solid var(--pk-accent);
-}
+.editorial-title { font-family: var(--font-editorial); font-size: 1.8rem; font-weight: 600; font-style: italic; margin-bottom: 15px; }
+.chat-text { color: rgba(255,255,255,0.85); line-height: 1.8; font-size: 0.95rem; font-weight: 300; min-height: 80px;}
+.luxury-divider { width: 100%; height: 1px; background: linear-gradient(90deg, transparent, rgba(229, 181, 184, 0.3), transparent); margin: 25px 0; }
+.typing-target::after { content: '|'; animation: blink 1s step-start infinite; color: var(--gold-accent); }
+@keyframes blink { 50% { opacity: 0; } }
 
-/* ========================================= */
-/* --- PASTEL 3D CAKE (Adapted for Dark) --- */
-/* ========================================= */
-.elegant-cake-container { 
-    width: 100%; height: 260px; display: flex; justify-content: center; align-items: flex-end; 
-    position: relative; margin-bottom: 20px; z-index: 10; animation: gentleFloat 4s ease-in-out infinite; 
-}
-.elegant-cake-container::before {
-    content: ''; position: absolute; top: 50%; left: 50%; transform: translate(-50%, -50%);
-    width: 250px; height: 250px; border-radius: 50%; background: radial-gradient(circle, rgba(255, 0, 255, 0.15) 0%, transparent 60%); z-index: 0; filter: blur(20px); pointer-events: none;
-}
+/* --- THE ANTHEM MONOLITH --- */
+.anthem-card { padding: 50px 30px; position: relative; }
+.watermark-icon { position: absolute; top: 50%; left: 50%; transform: translate(-50%, -50%); font-size: 16rem; opacity: 0.03; filter: grayscale(100%); pointer-events: none; }
+.massive-title { font-size: 2.5rem; text-align: center; color: var(--gold-accent); margin-bottom: 30px; border-bottom: 1px solid rgba(255,255,255,0.1); padding-bottom: 20px;}
+.lyrics-text { font-family: var(--font-modern); font-size: 0.95rem; line-height: 1.8; color: rgba(255,255,255,0.7); text-align: center; font-weight: 300; letter-spacing: 0.5px;}
+.italic-pop { font-family: var(--font-editorial); font-size: 1.4rem; font-style: italic; font-weight: 600; }
+
+/* --- HAUTE COUTURE CAKE --- */
+.elegant-cake-container { width: 100%; height: 260px; display: flex; justify-content: center; align-items: flex-end; position: relative; margin-bottom: 20px; z-index: 10; animation: gentleFloat 6s ease-in-out infinite; }
 .cake-3d { position: relative; display: flex; flex-direction: column; align-items: center; justify-content: flex-end; padding-bottom: 12px; z-index: 2; }
-.tier { 
-    position: relative; display: flex; justify-content: center; align-items: center; border-radius: 8px 8px 2px 2px; 
-    box-shadow: inset -15px 0 20px rgba(0,0,0,0.3), inset 15px 0 20px rgba(255,255,255,0.4), 0 5px 15px rgba(0,0,0,0.8); 
-}
-.tier::before {
-    content: ''; position: absolute; top: -2px; left: 0; width: 100%; height: 15px;
-    background: radial-gradient(circle at 10px 0, transparent 10px, #ffffff 11px);
-    background-size: 20px 15px; background-repeat: repeat-x; z-index: 10; opacity: 0.95;
-}
-.tier-bottom { width: 180px; height: 60px; background: linear-gradient(to right, #dcae73 0%, #fde2bb 40%, #dcae73 100%); z-index: 3; margin-top: -5px; border-bottom: 5px dotted #d4af37; }
-.tier-middle { width: 140px; height: 55px; background: linear-gradient(to right, #d13084 0%, #ff66b2 40%, #d13084 100%); z-index: 4; margin-top: -5px; border-bottom: 4px dotted #d4af37; }
-.tier-top { width: 100px; height: 50px; background: linear-gradient(to right, #6d1eb8 0%, #b266ff 40%, #6d1eb8 100%); z-index: 5; border-bottom: 4px dotted #d4af37; }
-.cake-text { font-family: var(--font-heading); font-size: 2.2rem; color: #fff; text-shadow: 2px 2px 4px rgba(0,0,0,0.8); transform: translateY(-2px); z-index: 15; }
-.candle-19 { position: absolute; top: -55px; z-index: 10; font-family: var(--font-body); font-weight: 700; font-size: 2.5rem; color: #ffd700; text-shadow: 2px 2px 0px #b8860b, 0 0 15px rgba(255, 215, 0, 0.8); display: flex; flex-direction: column; align-items: center; }
-.flame { width: 12px; height: 18px; background: #ffbf00; border-radius: 50% 50% 20% 20%; box-shadow: 0 0 15px #ffbf00, 0 0 30px #ff007f; margin-bottom: 2px; animation: flicker 0.1s infinite alternate; }
+.tier { position: relative; display: flex; justify-content: center; align-items: center; border-radius: 4px; box-shadow: inset -10px 0 20px rgba(0,0,0,0.5), inset 10px 0 20px rgba(255,255,255,0.1), 0 10px 20px rgba(0,0,0,0.8); }
+/* Rich, dark luxury cake colors */
+.tier-bottom { width: 180px; height: 60px; background: linear-gradient(to right, #3A2332 0%, #56334A 40%, #3A2332 100%); z-index: 3; margin-top: -5px; border-bottom: 2px solid var(--gold-accent); }
+.tier-middle { width: 140px; height: 55px; background: linear-gradient(to right, #241424 0%, #3A2332 40%, #241424 100%); z-index: 4; margin-top: -5px; border-bottom: 2px solid var(--gold-accent); }
+.tier-top { width: 100px; height: 50px; background: linear-gradient(to right, #4A2B3B 0%, #683E53 40%, #4A2B3B 100%); z-index: 5; border-bottom: 2px solid var(--gold-accent); }
+.cake-text { font-family: var(--font-editorial); font-style: italic; font-size: 2rem; color: var(--gold-accent); text-shadow: 0 5px 10px rgba(0,0,0,0.8); transform: translateY(-2px); z-index: 15; }
+.candle-19 { position: absolute; top: -55px; z-index: 10; font-family: var(--font-editorial); font-weight: 400; font-style: italic; font-size: 2.5rem; color: #fff; text-shadow: 0 0 15px rgba(255,255,255,0.5); display: flex; flex-direction: column; align-items: center; }
+.flame { width: 10px; height: 18px; background: #fff; border-radius: 50% 50% 20% 20%; box-shadow: 0 0 15px #fff, 0 0 30px var(--gold-accent); margin-bottom: 2px; animation: flicker 0.15s infinite alternate; }
+@keyframes flicker { 0% { transform: rotate(-1deg) scale(1); opacity: 0.9; } 100% { transform: rotate(1deg) scale(1.05); opacity: 1; } }
+.cake-plate { position: absolute; bottom: 4px; width: 220px; height: 8px; background: #111; border-radius: 50%; box-shadow: 0 15px 25px rgba(0,0,0,0.9); z-index: 2; border: 1px solid rgba(255,255,255,0.1); }
+.cake-base { display: none; } /* Removed for cleaner look */
 
-/* Memory Vault - Dark Neon Frames */
+/* --- GALLERY / VAULT --- */
 .polaroid-gallery { position: relative; height: 320px; width: 100%; display: flex; justify-content: center; align-items: center; z-index: 1; }
 .polaroid { 
-    position: absolute; background: rgba(20, 20, 35, 0.85); backdrop-filter: blur(10px);
-    padding: 12px 12px 35px 12px; border-radius: 12px; border: 1px solid rgba(255, 0, 255, 0.4); 
-    box-shadow: 0 15px 35px rgba(0,0,0,0.9), inset 0 0 20px rgba(0, 255, 255, 0.15); 
-    width: 170px; height: 210px; transition: all 2.5s cubic-bezier(0.4, 0, 0.2, 1); cursor: pointer; 
+    position: absolute; background: rgba(255,255,255,0.03); backdrop-filter: blur(10px);
+    padding: 10px 10px 30px 10px; border-radius: 4px; border: 1px solid rgba(255,255,255,0.15); 
+    box-shadow: 0 20px 50px rgba(0,0,0,0.8); width: 170px; height: 210px; 
+    transition: all 0.8s cubic-bezier(0.4, 0, 0.2, 1); cursor: pointer; overflow: hidden;
 }
-.polaroid img { width: 100%; height: 100%; object-fit: cover; background: #222; border-radius: 6px; border: 1px solid rgba(255,255,255,0.15);}
-.pos-1 { transform: rotate(-12deg) translateX(-60px) scale(0.85); z-index: 1; opacity: 0.7; }
-.pos-2 { transform: rotate(14deg) translateX(60px) scale(0.85); z-index: 2; opacity: 0.7; }
-.pos-3 { transform: rotate(2deg) translateY(-10px) scale(1.05); z-index: 3; opacity: 1; box-shadow: 0 25px 50px rgba(0,0,0,0.9), 0 0 20px rgba(255,0,255,0.3); }
-.final-wish { font-family: var(--font-royal); font-size: 2rem; color: #fff; font-weight: 600; font-style: italic; text-shadow: 0 0 10px #000; z-index: 10; position: relative; }
+.polaroid img { width: 100%; height: 100%; object-fit: cover; border-radius: 2px; filter: grayscale(20%) contrast(1.1); transition: 0.5s; }
+.polaroid:hover img { filter: grayscale(0%) contrast(1); transform: scale(1.05); }
+.frame-glare { position: absolute; top: 0; left: -100%; width: 50%; height: 100%; background: linear-gradient(90deg, transparent, rgba(255,255,255,0.2), transparent); transform: skewX(-20deg); transition: 0.5s; }
+.polaroid:hover .frame-glare { left: 200%; }
+
+.pos-1 { transform: rotate(-8deg) translateX(-50px) scale(0.9); z-index: 1; opacity: 0.6; }
+.pos-2 { transform: rotate(10deg) translateX(50px) scale(0.9); z-index: 2; opacity: 0.6; }
+.pos-3 { transform: rotate(0deg) translateY(-10px) scale(1.1); z-index: 3; opacity: 1; border-color: var(--gold-accent); box-shadow: 0 30px 60px rgba(0,0,0,0.9), 0 0 30px var(--gold-glow); }
+.final-wish { font-family: var(--font-editorial); font-size: 1.5rem; color: #fff; font-weight: 400; font-style: italic; letter-spacing: 1px; text-shadow: 0 5px 15px rgba(0,0,0,0.8); z-index: 10; position: relative; }
 
 /* --- TULIP SHOWER CONFETTI --- */
 #confetti-canvas { position: fixed; top: 0; left: 0; width: 100vw; height: 100vh; pointer-events: none; z-index: 9999; }
-.confetti-piece { position: absolute; font-size: 1.8rem; user-select: none; }
+.confetti-piece { position: absolute; font-size: 1.5rem; user-select: none; filter: drop-shadow(0 5px 10px rgba(0,0,0,0.5)); }
 @keyframes flowerFall { 0% { transform: translateY(-50px) rotate(0deg); opacity: 1; } 100% { transform: translateY(110vh) rotate(calc(720deg * var(--spin))); opacity: 0; } }
 
-/* --- FULLSCREEN IMAGE POPUP (Dark Theme) --- */
+/* --- CINEMATIC LIGHTBOX --- */
 #image-modal {
     position: fixed; top: 0; left: 0; width: 100vw; height: 100vh;
-    background: rgba(0, 0, 0, 0.85); backdrop-filter: blur(15px);
+    background: rgba(0, 0, 0, 0.95); backdrop-filter: blur(20px);
     z-index: 9999; display: flex; justify-content: center; align-items: center;
-    opacity: 0; visibility: hidden; transition: 0.3s ease;
+    opacity: 0; visibility: hidden; transition: 0.5s cubic-bezier(0.4, 0, 0.2, 1);
 }
 #image-modal.active { opacity: 1; visibility: visible; }
-.modal-content { max-width: 90%; max-height: 80vh; border-radius: 8px; box-shadow: 0 0 40px var(--pk-accent); border: 2px solid rgba(255,255,255,0.2); transform: scale(0.8); transition: 0.4s; }
-#image-modal.active .modal-content { transform: scale(1); }
-.close-modal { position: absolute; top: 25px; right: 35px; color: #fff; text-shadow: 0 0 10px var(--pk-accent); font-size: 45px; font-weight: bold; cursor: pointer; transition: 0.3s; }
-.close-modal:hover { color: var(--pk-accent); transform: scale(1.2); }
+.modal-content { max-width: 90%; max-height: 80vh; border-radius: 4px; box-shadow: 0 30px 80px rgba(0,0,0,1), 0 0 50px var(--gold-glow); border: 1px solid rgba(255,255,255,0.2); transform: scale(0.95) translateY(20px); transition: 0.6s cubic-bezier(0.4, 0, 0.2, 1); }
+#image-modal.active .modal-content { transform: scale(1) translateY(0); }
+.close-modal { position: absolute; top: 30px; right: 40px; color: #fff; font-family: var(--font-modern); font-size: 30px; font-weight: 300; cursor: pointer; transition: 0.3s; opacity: 0.5; }
+.close-modal:hover { color: var(--gold-accent); transform: rotate(90deg); opacity: 1; }
 
 /* Responsive Adjustments */
 @media screen and (max-height: 800px) {
-    .cinematic-title { font-size: 3.5rem; margin-bottom: 15px; }
-    .elegant-cake-container { transform: scale(0.8); margin-bottom: 0px; margin-top: -20px; }
-    .premium-btn { padding: 12px 25px; font-size: 0.85rem; margin-top: 15px; }
-    .next-btn::before { top: -25px; font-size: 0.7rem; } 
-    .glass-panel { padding: 20px 15px; }
+    .cinematic-title { font-size: 3rem; margin-bottom: 10px; }
+    .elegant-cake-container { transform: scale(0.85); margin-bottom: 0px; margin-top: -10px; }
+    .luxury-btn { padding: 12px 25px; font-size: 0.75rem; }
+    .glass-body { padding: 25px 20px; }
     .chat-text { font-size: 0.85rem; min-height: 60px; }
-    .royal-title { font-size: 2.2rem; margin-bottom: 15px; }
-    .royal-letter { padding: 25px 15px 35px 15px; }
-    .polaroid-gallery { height: 260px; transform: scale(0.85); }
-    .final-wish { font-size: 1.6rem; }
+    .massive-title { font-size: 2rem; margin-bottom: 20px; padding-bottom: 15px;}
+    .anthem-card { padding: 35px 20px; }
+    .lyrics-text { font-size: 0.85rem; line-height: 1.6; }
+    .polaroid-gallery { height: 280px; transform: scale(0.85); }
+    .final-wish { font-size: 1.2rem; }
     }
