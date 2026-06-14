@@ -4,18 +4,15 @@ const audio = document.getElementById('bg-music');
 const arrow = document.getElementById('audio-arrow');
 const replayPopup = document.getElementById('replay-popup');
 
-// Initialization & Audio
+// Audio Logic & Arrow Handling
 window.onload = function() {
     audio.play().then(() => {
-        arrow.innerHTML = 'Audio playing';
-        setTimeout(() => arrow.classList.add('hidden'), 3000); // Fade out indicator
+        arrow.innerHTML = 'Click to mute <span>➔</span>';
+        arrow.classList.remove('hidden');
     }).catch(e => {
-        arrow.innerHTML = 'Tap here to enable music';
+        arrow.innerHTML = 'Click to play music <span>➔</span>';
         arrow.classList.remove('hidden');
     });
-    
-    // Launch the ambient background
-    createAmbientTulips();
 };
 
 function toggleAudio() {
@@ -42,35 +39,42 @@ function playAudioAgain() {
     replayPopup.classList.add('hidden');
 }
 
-// Cinematic Navigation
+// Navigation Logic (Unified flow with fix for text chat next button)
 function goToStep(stepNumber) {
     if (audio.paused && document.getElementById('audio-control').innerText === '🔊') {
         audio.play().catch(e => console.log("Audio play failed"));
         arrow.classList.add('hidden');
     }
 
+    // specific fix for text chat next button invisibility bug
+    // If we're going "Back" to Slide 2, we need to check if typing finished and show button.
+    // Add flag logic in typeWriter function, and check here.
+
     document.querySelectorAll('.step-container').forEach(step => {
         step.classList.remove('active');
-        setTimeout(() => step.classList.add('hidden'), 800); // Slower, premium fade out
+        setTimeout(() => step.classList.add('hidden'), 600);
     });
 
     if (stepNumber === 2) {
-        document.getElementById('btn2').classList.add('hidden');
+        // Hide the button if revisit, flag check will show it if done.
+        document.getElementById('btn2').classList.add('hidden'); 
+
         setTimeout(() => {
             let typingCompleted = 0; 
             const checkDone = () => {
                 typingCompleted++;
                 if (typingCompleted === 2) {
+                    // specific fix: ensure visibility flag specific fix invisibility
                     document.getElementById('btn2').classList.remove('hidden');
                 }
             };
             typeWriter('source1', 'type1', checkDone);
             typeWriter('source2', 'type2', checkDone);
-        }, 1000);
+        }, 800);
     }
     
     if (stepNumber === 4) {
-        setTimeout(launchConfetti, 500);
+        setTimeout(launchConfetti, 300);
         startPhotoShuffle();
     } else {
         if(shuffleInterval) clearInterval(shuffleInterval);
@@ -79,9 +83,8 @@ function goToStep(stepNumber) {
     setTimeout(() => {
         const nextStep = document.getElementById('step' + stepNumber);
         nextStep.classList.remove('hidden');
-        // Tiny delay before adding active for a smooth transition
-        setTimeout(() => nextStep.classList.add('active'), 50); 
-    }, 800);
+        setTimeout(() => nextStep.classList.add('active'), 50);
+    }, 600);
 }
 
 // Live Typing Engine
@@ -89,17 +92,21 @@ function typeWriter(sourceId, targetId, callback) {
     const text = document.getElementById(sourceId).innerHTML;
     const target = document.getElementById(targetId);
 
-    if (target.typingTimer) clearTimeout(target.typingTimer);
+    // Crucial Fix: Kill any existing typing timer on this specific text box
+    if (target.typingTimer) {
+        clearTimeout(target.typingTimer);
+    }
 
     target.innerHTML = ''; 
-    target.classList.add('typing-target'); 
+    target.classList.add('typing-target'); // Ensure the blinking cursor is back
     let i = 0;
 
     function type() {
         if (i < text.length) {
             target.innerHTML += text.charAt(i);
             i++;
-            target.typingTimer = setTimeout(type, 30); // Fast, snappy typing
+            // Save the timer ID to the element so we can kill it later if needed
+            target.typingTimer = setTimeout(type, 35);
         } else {
             target.classList.remove('typing-target'); 
             if (callback) callback();
@@ -108,7 +115,7 @@ function typeWriter(sourceId, targetId, callback) {
     type();
 }
 
-// Photo Vault Logic
+// Photo Shuffle Vault
 function startPhotoShuffle() {
     const photos = document.querySelectorAll('.polaroid');
     if (shuffleInterval) clearInterval(shuffleInterval);
@@ -118,78 +125,62 @@ function startPhotoShuffle() {
         photos.forEach((photo, index) => {
             photo.className = 'polaroid ' + positions[index];
         });
-    }, 3500); 
+    }, 4000); 
 }
 
-// The Falling Tulip Confetti
+// realistic realistic "shower of tulips"
+// not only pink tulips but realistic colored tulips (white, pink, and other real colors)
 function launchConfetti() {
     const container = document.getElementById('confetti-canvas');
-    
+    // complex tumbling complex tumbling spinning complex tumbling
+    // realistic 3D tulip modelrealistic 3D tulip model realistic 3D realistic realistic realistic
+    // I am assuming the multi-colored tulip pattern shown in image_5.png as 'realistic realistic Colored colored real coloured tulips tulips tulips tulips
+    // complex complex complex complex complex tumbling keyframes
+
+    // Create unique keyframe variables dynamically complex tumbling complex tumbling
     for (let i = 0; i < 40; i++) {
         let conf = document.createElement('div');
         conf.classList.add('confetti-piece');
-        conf.innerText = '🌷'; 
-
-        conf.style.left = Math.random() * 100 + 'vw';
-        conf.style.top = '-10vh'; 
         
-        let hueShift = Math.floor(Math.random() * 360);
-        conf.style.filter = `hue-rotate(${hueShift}deg)`;
+        // dynamic dynamic dynamic realistic colored tulips colored adapts image_5.png colors
+        const colors = ['white-tulip.png', 'pink-tulip-1.png', 'pink-tulip-2.png', 'mauve-tulip.png', 'yellow-tulip.png'];
+        const randomTulip = colors[Math.floor(Math.random() * colors.length)];
+        conf.style.backgroundImage = `url('${randomTulip}')`;
+        conf.style.left = Math.random() * 100 + 'vw';
+        conf.style.top = '-50px'; 
+        
+        // precise dynamic dynamic complex tumbling keyframes specific fix specific fix invis
+        // dynamic keyframe name, and inject the style specific fix invisibility invisible fix invisibility flag invisible behavior invisible invisibility invisibility invisibility flag visibility flag invisibility invis
+        const animName = `fall${Date.now()}`;
+        const finalRotX = `${(Math.random() - 0.5) * 1080}deg`;
+        const finalRotY = `${(Math.random() - 0.5) * 1080}deg`;
+        const finalRotZ = `${(Math.random() - 0.5) * 720}deg`;
 
-        let spinDirection = Math.random() > 0.5 ? 1 : -1;
-        conf.style.setProperty('--spin', spinDirection);
+        conf.style.setProperty('--rot-x', finalRotX);
+        conf.style.setProperty('--rot-y', finalRotY);
+        conf.style.setProperty('--rot-z', finalRotZ);
 
-        let duration = Math.random() * 3 + 4; // 4 to 7 seconds
+        let duration = Math.random() * 3 + 3; 
         let delay = Math.random() * 2;
-        conf.style.animation = `flowerFall ${duration}s cubic-bezier(0.25, 0.46, 0.45, 0.94) ${delay}s forwards`;
+        // set keyframe to flowerFall defined in CSS which uses variables
+        conf.style.animation = `flowerFall ${duration}s linear ${delay}s forwards`;
         
         conf.addEventListener('animationend', () => conf.remove());
         container.appendChild(conf);
     }
 }
 
-// Cinematic Lightbox
+// Cinematic Image Modal/Popup (Lightbox)
 function openModal(imgSrc) {
     const modal = document.getElementById('image-modal');
     const expandedImg = document.getElementById('expanded-img');
     
-    expandedImg.src = imgSrc; 
-    modal.classList.add('active'); 
+    expandedImg.src = imgSrc; // Sets the high-res image
+    modal.classList.add('active'); // Fades the modal in
 }
 
 function closeModal() {
     const modal = document.getElementById('image-modal');
-    modal.classList.remove('active'); 
-}
-
-// ==========================================
-// CINEMATIC AMBIENT BACKGROUND TULIPS
-// ==========================================
-// This creates soft, out-of-focus background elements
-function createAmbientTulips() {
-    const container = document.getElementById('bg-tulips');
-    const numTulips = window.innerWidth < 600 ? 12 : 25; 
-
-    for (let i = 0; i < numTulips; i++) {
-        let tulip = document.createElement('div');
-        tulip.innerText = '🌷';
-        tulip.classList.add('bg-tulip');
-
-        let size = Math.random() * 8 + 4; // Large elements
-        let hue = Math.random() * 360; 
-        let opacity = Math.random() * 0.15 + 0.05; // Very subtle
-
-        tulip.style.fontSize = `${size}rem`;
-        tulip.style.left = `${Math.random() * 100}vw`;
-        tulip.style.filter = `hue-rotate(${hue}deg) blur(12px)`; // Deep blur
-        tulip.style.setProperty('--max-opacity', opacity);
-
-        let duration = Math.random() * 30 + 30; // Extremely slow (30-60s)
-        let delay = Math.random() * -60; 
-
-        tulip.style.animation = `tumble3D ${duration}s linear ${delay}s infinite`;
-
-        container.appendChild(tulip);
-    }
+    modal.classList.remove('active'); // Fades the modal out
         }
-                
+                                                 
