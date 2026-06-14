@@ -1,10 +1,13 @@
 const audio = document.getElementById('bg-music');
 const arrow = document.getElementById('audio-arrow');
+const replayPopup = document.getElementById('replay-popup');
 let shuffleInterval;
 let positions = ['pos-1', 'pos-2', 'pos-3'];
 
-// --- 1. INITIALIZATION ---
+// --- 1. INITIALIZATION & AUDIO ---
 window.onload = function() {
+    initPetals(); // Starts the continuous canvas petal fall
+
     audio.play().then(() => {
         arrow.classList.add('hidden');
     }).catch(e => {
@@ -25,6 +28,18 @@ function toggleAudio() {
     }
 }
 
+audio.addEventListener('ended', () => {
+    document.getElementById('audio-control').innerText = '🔇';
+    replayPopup.classList.remove('hidden');
+});
+
+function playAudioAgain() {
+    audio.currentTime = 0;
+    audio.play();
+    document.getElementById('audio-control').innerText = '🔊';
+    replayPopup.classList.add('hidden');
+}
+
 // --- 2. STEP NAVIGATION & BUG-FREE TYPING ---
 function goToStep(stepNumber) {
     if (audio.paused && document.getElementById('audio-control').innerText === '🔊') {
@@ -32,7 +47,6 @@ function goToStep(stepNumber) {
         arrow.classList.add('hidden');
     }
 
-    // Fade out current step
     document.querySelectorAll('.step-container').forEach(step => {
         step.classList.remove('active');
         setTimeout(() => step.classList.add('hidden'), 600); 
@@ -40,14 +54,14 @@ function goToStep(stepNumber) {
 
     if (stepNumber === 2) {
         const btn2 = document.getElementById('btn2');
-        btn2.classList.add('hidden'); // Hide button initially
+        btn2.classList.add('hidden'); 
         
         setTimeout(() => {
             let typingCompleted = 0; 
             const checkDone = () => {
                 typingCompleted++;
                 if (typingCompleted === 2) {
-                    btn2.classList.remove('hidden'); // Show button when both texts finish
+                    btn2.classList.remove('hidden'); 
                 }
             };
             typeWriter('source1', 'type1', checkDone);
@@ -56,13 +70,11 @@ function goToStep(stepNumber) {
     }
 
     if (stepNumber === 4) {
-        setTimeout(launchConfetti, 500);
         startPhotoShuffle();
     } else {
         if(shuffleInterval) clearInterval(shuffleInterval);
     }
 
-    // Fade in new step
     setTimeout(() => {
         const nextStep = document.getElementById('step' + stepNumber);
         nextStep.classList.remove('hidden');
@@ -70,7 +82,6 @@ function goToStep(stepNumber) {
     }, 600);
 }
 
-// Bulletproof Typing Engine
 function typeWriter(sourceId, targetId, callback) {
     const text = document.getElementById(sourceId).innerHTML;
     const target = document.getElementById(targetId);
@@ -80,7 +91,6 @@ function typeWriter(sourceId, targetId, callback) {
     target.innerHTML = ''; 
     target.classList.add('typing-target'); 
     
-    // Safely handles emojis without breaking
     const chars = Array.from(text);
     let i = 0;
 
@@ -97,39 +107,93 @@ function typeWriter(sourceId, targetId, callback) {
     type();
 }
 
-// --- 3. CUSTOM PINK & WHITE SVG TULIP SHOWER ---
-function launchConfetti() {
-    const container = document.getElementById('confetti-canvas');
-    
-    // A clean, beautiful SVG path of a tulip blossom
-    const tulipPath = "M12 2c0 0-7 4-7 11 0 4 3 8 7 9 4-1 7-5 7-9 0-7-7-11-7-11z M12 22 L12 13 M9 21 c0 0 3-11 3-11 M15 21 c0 0-3-11-3-11";
+// --- 3. CANVAS PETAL ENGINE (Integrated from User Code) ---
+function initPetals() {
+    const canvas = document.getElementById("petal-canvas");
+    const ctx = canvas.getContext("2d");
 
-    // Strictly Pink and White colors
-    const colors = ['#ffffff', '#ffb6c1', '#ff69b4', '#ffe4e1'];
+    let W = 0, H = 0, DPR = 1;
 
-    for (let i = 0; i < 50; i++) {
-        let conf = document.createElement('div');
-        conf.classList.add('svg-tulip');
-        
-        let color = colors[Math.floor(Math.random() * colors.length)];
-        
-        conf.innerHTML = `<svg viewBox="0 0 24 24" fill="${color}" stroke="rgba(255,255,255,0.8)" stroke-width="0.5" xmlns="http://www.w3.org/2000/svg"><path d="${tulipPath}"/></svg>`;
-
-        conf.style.left = Math.random() * 100 + 'vw';
-        conf.style.top = '-10vh'; 
-        
-        // Randomize the fall rotation so it looks natural
-        let endRot = (Math.random() * 360) + 180;
-        conf.style.setProperty('--rot-end', `${endRot}deg`);
-
-        let duration = Math.random() * 3 + 4; // Falls in 4 to 7 seconds
-        let delay = Math.random() * 2;
-        
-        conf.style.animation = `svgFall ${duration}s ease-in ${delay}s forwards`;
-        
-        conf.addEventListener('animationend', () => conf.remove());
-        container.appendChild(conf);
+    function resize() {
+        DPR = Math.min(window.devicePixelRatio || 1, 2);
+        W = window.innerWidth;
+        H = window.innerHeight;
+        canvas.width = Math.floor(W * DPR);
+        canvas.height = Math.floor(H * DPR);
+        ctx.setTransform(DPR, 0, 0, DPR, 0, 0);
     }
+
+    window.addEventListener("resize", resize);
+    resize();
+
+    const colors = ["#ff6ea8", "#ff8cbc", "#ffb2cf", "#ffd0de", "#f7a6c5"];
+    const rand = (min, max) => Math.random() * (max - min) + min;
+    const pick = arr => arr[(Math.random() * arr.length) | 0];
+
+    const petals = [];
+    const count = Math.min(75, Math.floor((W * H) / 18000) + 40);
+
+    for (let i = 0; i < count; i++) {
+        petals.push({
+            x: rand(0, W),
+            y: rand(-H, H),
+            s: rand(0.6, 1.15),
+            vx: rand(-0.25, 0.25),
+            vy: rand(0.45, 1.15),
+            rot: rand(0, Math.PI * 2),
+            vr: rand(-0.015, 0.015),
+            wave: rand(0, Math.PI * 2),
+            color: pick(colors),
+            alpha: rand(0.65, 0.95)
+        });
+    }
+
+    function drawPetal(p) {
+        ctx.save();
+        ctx.translate(p.x, p.y);
+        ctx.rotate(p.rot);
+        ctx.scale(p.s, p.s);
+        ctx.globalAlpha = p.alpha;
+
+        const g = ctx.createLinearGradient(0, -12, 0, 12);
+        g.addColorStop(0, "#ffe4ef");
+        g.addColorStop(0.5, p.color);
+        g.addColorStop(1, "#ff7fb0");
+        ctx.fillStyle = g;
+
+        ctx.beginPath();
+        ctx.moveTo(0, -10);
+        ctx.bezierCurveTo(7, -8, 10, -1, 7, 7);
+        ctx.bezierCurveTo(4, 11, -4, 12, -7, 7);
+        ctx.bezierCurveTo(-10, -1, -7, -8, 0, -10);
+        ctx.fill();
+
+        ctx.restore();
+    }
+
+    function animate() {
+        ctx.clearRect(0, 0, W, H);
+
+        for (const p of petals) {
+            p.x += p.vx + Math.sin(p.wave) * 0.35;
+            p.y += p.vy;
+            p.rot += p.vr;
+            p.wave += 0.03;
+
+            if (p.y > H + 25) {
+                p.y = -25;
+                p.x = rand(0, W);
+            }
+            if (p.x < -30) p.x = W + 30;
+            if (p.x > W + 30) p.x = -30;
+
+            drawPetal(p);
+        }
+
+        requestAnimationFrame(animate);
+    }
+
+    animate();
 }
 
 // --- 4. PHOTO GALLERY & LIGHTBOX ---
@@ -156,5 +220,4 @@ function openModal(imgSrc) {
 function closeModal() {
     const modal = document.getElementById('image-modal');
     modal.classList.remove('active'); 
-                                      }
-            
+}
