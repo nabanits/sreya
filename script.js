@@ -4,18 +4,18 @@ const audio = document.getElementById('bg-music');
 const arrow = document.getElementById('audio-arrow');
 const replayPopup = document.getElementById('replay-popup');
 
-// Audio Logic & Arrow Handling
+// Initialization & Audio
 window.onload = function() {
     audio.play().then(() => {
-        arrow.innerHTML = 'Click to mute <span>➔</span>';
-        arrow.classList.remove('hidden');
+        arrow.innerHTML = 'Audio playing';
+        setTimeout(() => arrow.classList.add('hidden'), 3000); // Fade out indicator
     }).catch(e => {
-        arrow.innerHTML = 'Click to play music <span>➔</span>';
+        arrow.innerHTML = 'Tap here to enable music';
         arrow.classList.remove('hidden');
     });
     
-    // Initialize the new 3D Background effect
-    create3DTulipField();
+    // Launch the ambient background
+    createAmbientTulips();
 };
 
 function toggleAudio() {
@@ -42,7 +42,7 @@ function playAudioAgain() {
     replayPopup.classList.add('hidden');
 }
 
-// Navigation Logic 
+// Cinematic Navigation
 function goToStep(stepNumber) {
     if (audio.paused && document.getElementById('audio-control').innerText === '🔊') {
         audio.play().catch(e => console.log("Audio play failed"));
@@ -51,15 +51,12 @@ function goToStep(stepNumber) {
 
     document.querySelectorAll('.step-container').forEach(step => {
         step.classList.remove('active');
-        setTimeout(() => step.classList.add('hidden'), 600);
+        setTimeout(() => step.classList.add('hidden'), 800); // Slower, premium fade out
     });
 
     if (stepNumber === 2) {
-        // Hide the button initially
         document.getElementById('btn2').classList.add('hidden');
-        
         setTimeout(() => {
-            // FIX: Reset typingCompleted to 0 EVERY TIME step 2 opens
             let typingCompleted = 0; 
             const checkDone = () => {
                 typingCompleted++;
@@ -69,11 +66,11 @@ function goToStep(stepNumber) {
             };
             typeWriter('source1', 'type1', checkDone);
             typeWriter('source2', 'type2', checkDone);
-        }, 800);
+        }, 1000);
     }
     
     if (stepNumber === 4) {
-        setTimeout(launchConfetti, 300);
+        setTimeout(launchConfetti, 500);
         startPhotoShuffle();
     } else {
         if(shuffleInterval) clearInterval(shuffleInterval);
@@ -82,18 +79,17 @@ function goToStep(stepNumber) {
     setTimeout(() => {
         const nextStep = document.getElementById('step' + stepNumber);
         nextStep.classList.remove('hidden');
-        setTimeout(() => nextStep.classList.add('active'), 50);
-    }, 600);
+        // Tiny delay before adding active for a smooth transition
+        setTimeout(() => nextStep.classList.add('active'), 50); 
+    }, 800);
 }
 
-// Bulletproof Live Typing
+// Live Typing Engine
 function typeWriter(sourceId, targetId, callback) {
     const text = document.getElementById(sourceId).innerHTML;
     const target = document.getElementById(targetId);
 
-    if (target.typingTimer) {
-        clearTimeout(target.typingTimer);
-    }
+    if (target.typingTimer) clearTimeout(target.typingTimer);
 
     target.innerHTML = ''; 
     target.classList.add('typing-target'); 
@@ -103,7 +99,7 @@ function typeWriter(sourceId, targetId, callback) {
         if (i < text.length) {
             target.innerHTML += text.charAt(i);
             i++;
-            target.typingTimer = setTimeout(type, 35);
+            target.typingTimer = setTimeout(type, 30); // Fast, snappy typing
         } else {
             target.classList.remove('typing-target'); 
             if (callback) callback();
@@ -112,7 +108,7 @@ function typeWriter(sourceId, targetId, callback) {
     type();
 }
 
-// Photo Shuffle
+// Photo Vault Logic
 function startPhotoShuffle() {
     const photos = document.querySelectorAll('.polaroid');
     if (shuffleInterval) clearInterval(shuffleInterval);
@@ -122,10 +118,10 @@ function startPhotoShuffle() {
         photos.forEach((photo, index) => {
             photo.className = 'polaroid ' + positions[index];
         });
-    }, 4000); 
+    }, 3500); 
 }
 
-// Upgraded Tulip Confetti Engine
+// The Falling Tulip Confetti
 function launchConfetti() {
     const container = document.getElementById('confetti-canvas');
     
@@ -135,7 +131,7 @@ function launchConfetti() {
         conf.innerText = '🌷'; 
 
         conf.style.left = Math.random() * 100 + 'vw';
-        conf.style.top = '-10px'; 
+        conf.style.top = '-10vh'; 
         
         let hueShift = Math.floor(Math.random() * 360);
         conf.style.filter = `hue-rotate(${hueShift}deg)`;
@@ -143,16 +139,16 @@ function launchConfetti() {
         let spinDirection = Math.random() > 0.5 ? 1 : -1;
         conf.style.setProperty('--spin', spinDirection);
 
-        let duration = Math.random() * 3 + 3; 
+        let duration = Math.random() * 3 + 4; // 4 to 7 seconds
         let delay = Math.random() * 2;
-        conf.style.animation = `flowerFall ${duration}s linear ${delay}s forwards`;
+        conf.style.animation = `flowerFall ${duration}s cubic-bezier(0.25, 0.46, 0.45, 0.94) ${delay}s forwards`;
         
         conf.addEventListener('animationend', () => conf.remove());
         container.appendChild(conf);
     }
 }
 
-// FULLSCREEN IMAGE POPUP LOGIC 
+// Cinematic Lightbox
 function openModal(imgSrc) {
     const modal = document.getElementById('image-modal');
     const expandedImg = document.getElementById('expanded-img');
@@ -167,39 +163,33 @@ function closeModal() {
 }
 
 // ==========================================
-// NEW: 3D PARALLAX BACKGROUND TULIP ENGINE
+// CINEMATIC AMBIENT BACKGROUND TULIPS
 // ==========================================
-function create3DTulipField() {
+// This creates soft, out-of-focus background elements
+function createAmbientTulips() {
     const container = document.getElementById('bg-tulips');
-    const numTulips = window.innerWidth < 600 ? 15 : 30; // Fewer on mobile for performance
+    const numTulips = window.innerWidth < 600 ? 12 : 25; 
 
     for (let i = 0; i < numTulips; i++) {
-        createSingle3DTulip(container);
+        let tulip = document.createElement('div');
+        tulip.innerText = '🌷';
+        tulip.classList.add('bg-tulip');
+
+        let size = Math.random() * 8 + 4; // Large elements
+        let hue = Math.random() * 360; 
+        let opacity = Math.random() * 0.15 + 0.05; // Very subtle
+
+        tulip.style.fontSize = `${size}rem`;
+        tulip.style.left = `${Math.random() * 100}vw`;
+        tulip.style.filter = `hue-rotate(${hue}deg) blur(12px)`; // Deep blur
+        tulip.style.setProperty('--max-opacity', opacity);
+
+        let duration = Math.random() * 30 + 30; // Extremely slow (30-60s)
+        let delay = Math.random() * -60; 
+
+        tulip.style.animation = `tumble3D ${duration}s linear ${delay}s infinite`;
+
+        container.appendChild(tulip);
     }
-}
-
-function createSingle3DTulip(container) {
-    let tulip = document.createElement('div');
-    tulip.innerText = '🌷';
-    tulip.classList.add('bg-tulip');
-
-    // Randomize properties to simulate 3D depth
-    let size = Math.random() * 4 + 2; // Size between 2rem and 6rem
-    let blur = Math.random() > 0.5 ? Math.random() * 4 : 0; // Randomly blur some to make them look far away
-    let hue = Math.random() * 360; // Random color
-    let opacity = Math.random() * 0.4 + 0.1; // Max opacity between 0.1 and 0.5
-
-    tulip.style.fontSize = `${size}rem`;
-    tulip.style.left = `${Math.random() * 100}vw`;
-    tulip.style.filter = `hue-rotate(${hue}deg) blur(${blur}px)`;
-    tulip.style.setProperty('--max-opacity', opacity);
-
-    // Randomize animation speed and delay
-    let duration = Math.random() * 15 + 15; // Slow, majestic tumble (15 to 30 seconds)
-    let delay = Math.random() * -30; // Start at random points in the animation
-
-    tulip.style.animation = `tumble3D ${duration}s linear ${delay}s infinite`;
-
-    container.appendChild(tulip);
-            }
-        
+        }
+                
