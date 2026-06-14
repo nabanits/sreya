@@ -13,6 +13,9 @@ window.onload = function() {
         arrow.innerHTML = 'Click to play music <span>➔</span>';
         arrow.classList.remove('hidden');
     });
+    
+    // Initialize the new 3D Background effect
+    create3DTulipField();
 };
 
 function toggleAudio() {
@@ -39,7 +42,7 @@ function playAudioAgain() {
     replayPopup.classList.add('hidden');
 }
 
-// Navigation Logic (Unified across all pages)
+// Navigation Logic 
 function goToStep(stepNumber) {
     if (audio.paused && document.getElementById('audio-control').innerText === '🔊') {
         audio.play().catch(e => console.log("Audio play failed"));
@@ -126,18 +129,19 @@ function startPhotoShuffle() {
 function launchConfetti() {
     const container = document.getElementById('confetti-canvas');
     
-    // We create tulips and shift their color randomly
     for (let i = 0; i < 40; i++) {
         let conf = document.createElement('div');
         conf.classList.add('confetti-piece');
-        conf.innerText = '🌷'; // Standard pink tulip
+        conf.innerText = '🌷'; 
 
         conf.style.left = Math.random() * 100 + 'vw';
         conf.style.top = '-10px'; 
         
-        // CSS Magic: Shifts the color of the pink emoji to create yellow, blue, etc.
         let hueShift = Math.floor(Math.random() * 360);
         conf.style.filter = `hue-rotate(${hueShift}deg)`;
+
+        let spinDirection = Math.random() > 0.5 ? 1 : -1;
+        conf.style.setProperty('--spin', spinDirection);
 
         let duration = Math.random() * 3 + 3; 
         let delay = Math.random() * 2;
@@ -148,19 +152,54 @@ function launchConfetti() {
     }
 }
 
-// ==========================================
-// FULLSCREEN IMAGE POPUP LOGIC ( modal / lightbox)
-// ==========================================
+// FULLSCREEN IMAGE POPUP LOGIC 
 function openModal(imgSrc) {
     const modal = document.getElementById('image-modal');
     const expandedImg = document.getElementById('expanded-img');
     
-    expandedImg.src = imgSrc; // Sets the high-res image
-    modal.classList.add('active'); // Fades the modal in
+    expandedImg.src = imgSrc; 
+    modal.classList.add('active'); 
 }
 
 function closeModal() {
     const modal = document.getElementById('image-modal');
-    modal.classList.remove('active'); // Fades the modal out
+    modal.classList.remove('active'); 
+}
+
+// ==========================================
+// NEW: 3D PARALLAX BACKGROUND TULIP ENGINE
+// ==========================================
+function create3DTulipField() {
+    const container = document.getElementById('bg-tulips');
+    const numTulips = window.innerWidth < 600 ? 15 : 30; // Fewer on mobile for performance
+
+    for (let i = 0; i < numTulips; i++) {
+        createSingle3DTulip(container);
     }
+}
+
+function createSingle3DTulip(container) {
+    let tulip = document.createElement('div');
+    tulip.innerText = '🌷';
+    tulip.classList.add('bg-tulip');
+
+    // Randomize properties to simulate 3D depth
+    let size = Math.random() * 4 + 2; // Size between 2rem and 6rem
+    let blur = Math.random() > 0.5 ? Math.random() * 4 : 0; // Randomly blur some to make them look far away
+    let hue = Math.random() * 360; // Random color
+    let opacity = Math.random() * 0.4 + 0.1; // Max opacity between 0.1 and 0.5
+
+    tulip.style.fontSize = `${size}rem`;
+    tulip.style.left = `${Math.random() * 100}vw`;
+    tulip.style.filter = `hue-rotate(${hue}deg) blur(${blur}px)`;
+    tulip.style.setProperty('--max-opacity', opacity);
+
+    // Randomize animation speed and delay
+    let duration = Math.random() * 15 + 15; // Slow, majestic tumble (15 to 30 seconds)
+    let delay = Math.random() * -30; // Start at random points in the animation
+
+    tulip.style.animation = `tumble3D ${duration}s linear ${delay}s infinite`;
+
+    container.appendChild(tulip);
+            }
         
