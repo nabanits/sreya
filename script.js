@@ -7,7 +7,7 @@ const ctx = canvas.getContext("2d");
 let currentStep = 1;
 let isPetalFallActive = false;
 let isRoamingActive = false;
-let roamingItems = []; // Stores both SVGs and Emojis
+let roamingItems = []; 
 let animationFrameId;
 
 // 5 Photo Positions
@@ -22,7 +22,7 @@ let canvasPetals = [];
 window.onload = function() {
     initCanvasSize();
     
-    // Start roaming on P1. By default it forces fgLayer to z-index 2 (behind cake).
+    // Setup Roaming Foreground Layer for Page 1 (Behind Content)
     const fgLayer = document.getElementById('roaming-fg-layer');
     if(fgLayer) fgLayer.style.zIndex = "2"; 
     
@@ -153,7 +153,6 @@ function typeWriter(sourceId, targetId, callback) {
 // --- 3. ANIMATION ENGINES ---
 
 // A. MIXED ROAMING ENGINE (Pages 1 & 2)
-// Logic: SVGs go UP continuously. Emojis BOUNCE randomly.
 function startFloatingItems() {
     if (isRoamingActive) return; 
     isRoamingActive = true;
@@ -174,7 +173,7 @@ function startFloatingItems() {
 
     for (let i = 0; i < totalItems; i++) {
         let t = document.createElement('div');
-        let isEmoji = (i % 2 === 0); // Alternate types
+        let isEmoji = (i % 2 === 0); 
         
         let itemData = {
             el: t,
@@ -197,14 +196,11 @@ function startFloatingItems() {
             let color = roamingColors[Math.floor(Math.random() * roamingColors.length)];
             t.innerHTML = `<svg viewBox="0 0 24 24" fill="${color}" stroke="rgba(255,255,255,0.5)" stroke-width="0.5" xmlns="http://www.w3.org/2000/svg"><path d="${svgPath}"/></svg>`;
             
-            // Start SVGs lower down so they can float up naturally
             itemData.y = Math.random() * window.innerHeight + (Math.random() * 200);
-            
-            // Upward speed for SVGs
-            itemData.vy = (Math.random() * 1.5) + 1.2; 
+            itemData.vy = (Math.random() * 1.5) + 1.2; // Upward speed for SVGs
         }
         
-        // Assign to correct layer (30% to FG, 70% to BG)
+        // Assign to correct layer
         let layer = (i < fgCount) ? fgLayer : bgLayer;
         layer.appendChild(t);
 
@@ -219,34 +215,29 @@ function moveFloatingItems() {
 
     for (let item of roamingItems) {
         if (item.type === 'svg') {
-            // BEHAVIOR 1: SVGs FLOAT UP CONTINUOUSLY
+            // SVGs FLOAT UP CONTINUOUSLY
             item.y -= item.vy; 
             item.wave += 0.02;
-            item.x += Math.sin(item.wave) * 0.5; // Gentle sway
+            item.x += Math.sin(item.wave) * 0.5; 
 
-            // Respawn at bottom when reaching top
             if (item.y < -60) {
                 item.y = window.innerHeight + 60;
                 item.x = Math.random() * window.innerWidth;
             }
-            // Horizontal wrap
             if (item.x < -30) item.x = window.innerWidth + 30;
             if (item.x > window.innerWidth + 30) item.x = -30;
 
         } else {
-            // BEHAVIOR 2: EMOJIS BOUNCE RANDOMLY
+            // EMOJIS BOUNCE RANDOMLY
             item.x += item.vx;
             item.y += item.vy;
 
-            // Bounce off edges
             if (item.x < 0 || item.x > window.innerWidth - 40) item.vx *= -1;
             if (item.y < 0 || item.y > window.innerHeight - 40) item.vy *= -1;
             
-            // Slight rotation for bounce effect
             item.el.style.rotate = `${Math.sin(item.x/50) * 15}deg`;
         }
 
-        // Apply new position
         item.el.style.transform = `translate(${item.x}px, ${item.y}px)`;
     }
 
@@ -281,8 +272,10 @@ const rand = (min, max) => Math.random() * (max - min) + min;
 const pick = arr => arr[(Math.random() * arr.length) | 0];
 
 function createCanvasPetals() {
+    const petalColors = ["#ff6ea8", "#ff8cbc", "#ffb2cf", "#ffd0de", "#f7a6c5"];
     const count = Math.min(75, Math.floor((W * H) / 18000) + 40);
     canvasPetals = [];
+    
     for (let i = 0; i < count; i++) {
         canvasPetals.push({
             x: rand(0, W),
@@ -293,7 +286,7 @@ function createCanvasPetals() {
             rot: rand(0, Math.PI * 2),
             vr: rand(-0.015, 0.015),
             wave: rand(0, Math.PI * 2),
-            color: pick(colors),
+            color: pick(petalColors), // <-- THIS WAS THE FATAL TYPO. FIXED!
             alpha: rand(0.65, 0.95)
         });
     }
@@ -389,5 +382,5 @@ function openModal(imgSrc) {
 function closeModal() {
     const modal = document.getElementById('image-modal');
     modal.classList.remove('active'); 
-        }
-            
+}
+    
