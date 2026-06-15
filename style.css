@@ -3,8 +3,8 @@
     --pink-accent: #e65c87;
     --pink-glow: rgba(230, 92, 135, 0.4);
     
-    --glass-bg: rgba(255, 255, 255, 0.75);
-    --glass-border: rgba(255, 255, 255, 0.9);
+    --glass-bg: rgba(255, 255, 255, 0.85);
+    --glass-border: rgba(255, 255, 255, 1);
     --glass-shadow: 0 15px 35px rgba(180, 100, 120, 0.15);
     
     --font-editorial: 'Playfair Display', serif;
@@ -14,28 +14,41 @@
 * { box-sizing: border-box; margin: 0; padding: 0; }
 
 html, body { 
-    background-color: #fff7fb; 
+    background-color: #fff7fb; /* Fallback color */
     color: var(--text-color);
     font-family: var(--font-modern); 
     overflow-x: hidden; overflow-y: auto; 
     min-height: 100vh; width: 100vw;
 }
 
-/* --- THE CLEAN BACKGROUND --- */
+/* --- THE CLEAN BACKGROUND (Restored) --- */
 .luxury-overlay {
-    position: fixed; top: 0; left: 0; width: 100vw; height: 100vh; z-index: 1;
+    position: fixed; top: 0; left: 0; width: 100%; height: 100%; z-index: 1;
     background: linear-gradient(to bottom, #fff7fb, #f7eef5);
 }
 
-/* --- THE CANVAS PETAL FALL (Falls ABOVE everything) --- */
+/* --- THE NEW CANVAS PETAL FALL (Fixed Smearing & Z-Index) --- */
 #petal-canvas {
-    position: fixed; top: 0; left: 0; width: 100vw; height: 100vh;
-    pointer-events: none; z-index: 9998; 
+    position: fixed; top: 0; left: 0; 
+    width: 100%; height: 100%; /* Fixes mobile address bar glitch */
+    pointer-events: none; 
+    z-index: 9998; /* HIGHEST Z-INDEX: Falls over everything except modal */
 }
+
+/* --- THE WATERMARK (Locked to 0.19) --- */
+.watermark-bg {
+    position: absolute; top: 50%; left: 50%; transform: translate(-50%, -50%);
+    font-size: 15rem; 
+    opacity: 0.19; /* As requested */
+    pointer-events: none; z-index: 0; user-select: none;
+    filter: grayscale(10%) sepia(20%) hue-rotate(330deg);
+}
+.massive-watermark { font-size: 24rem; opacity: 0.19; }
+.vault-wrapper { position: relative; }
 
 /* --- ROAMING TULIPS (Pages 1 & 2) --- */
 #roaming-tulips-container {
-    position: fixed; top: 0; left: 0; width: 100vw; height: 100vh;
+    position: fixed; top: 0; left: 0; width: 100%; height: 100%;
     pointer-events: none; z-index: 2; overflow: hidden;
 }
 .roaming-tulip {
@@ -43,19 +56,8 @@ html, body {
     font-size: 30px;
     user-select: none;
     pointer-events: none;
-    opacity: 0.6; /* AS REQUESTED */
+    opacity: 0.6; /* As requested */
 }
-
-/* --- THE WATERMARK --- */
-.watermark-bg {
-    position: absolute; top: 50%; left: 50%; transform: translate(-50%, -50%);
-    font-size: 15rem; 
-    opacity: 0.19; /* EXACTLY 0.19 AS REQUESTED */
-    pointer-events: none; z-index: 0; user-select: none;
-    filter: grayscale(10%) sepia(20%) hue-rotate(330deg);
-}
-.massive-watermark { font-size: 24rem; opacity: 0.19; }
-.vault-wrapper { position: relative; }
 
 /* --- AUDIO & NAVIGATION CONTROLS --- */
 #audio-control {
@@ -66,6 +68,14 @@ html, body {
 }
 #audio-arrow { position: fixed; top: 38px; right: 85px; z-index: 100; font-size: 0.75rem; font-weight: 600; letter-spacing: 1px; color: var(--text-color); animation: bounceLeft 1s infinite; }
 @keyframes bounceLeft { 0%, 100% { transform: translateX(0); } 50% { transform: translateX(-8px); } }
+
+#replay-popup {
+    position: fixed; top: 25px; left: 50%; transform: translateX(-50%); z-index: 1000;
+    background: var(--pink-accent); color: #fff; padding: 12px 25px; border-radius: 30px; 
+    font-family: var(--font-modern); font-weight: 600; font-size: 0.8rem; letter-spacing: 1px; text-transform: uppercase;
+    box-shadow: 0 10px 30px var(--pink-glow); cursor: pointer; animation: slideDown 0.5s ease;
+}
+@keyframes slideDown { from { top: -50px; opacity: 0; } to { top: 25px; opacity: 1; } }
 
 .nav-back {
     position: absolute; top: 25px; left: 25px; z-index: 100;
@@ -88,7 +98,7 @@ html, body {
 .text-center { text-align: center; } .w-100 { width: 100%; } .mt-30 { margin-top: 30px; } .mt-40 { margin-top: 40px; }
 
 .kicker-text { font-size: 0.75rem; font-weight: 600; letter-spacing: 4px; opacity: 0.6; text-transform: uppercase; margin-bottom: 15px; }
-.cinematic-title { font-family: var(--font-editorial); font-size: 4rem; line-height: 1.1; font-weight: 400; font-style: italic; color: #1a1114; }
+.cinematic-title { font-family: var(--font-editorial); font-size: 4.5rem; line-height: 1.1; font-weight: 400; font-style: italic; color: #1a1114; }
 .accent-pink { color: var(--pink-accent); }
 
 /* Buttons */
@@ -97,7 +107,7 @@ html, body {
     font-family: var(--font-modern); font-size: 0.85rem; font-weight: 600; letter-spacing: 2px;
     text-transform: uppercase; cursor: pointer; transition: 0.4s; box-shadow: 0 10px 30px var(--pink-glow);
 }
-.luxury-btn:hover { transform: translateY(-3px); box-shadow: 0 15px 40px var(--pink-glow); }
+.luxury-btn:hover { transform: translateY(-3px); box-shadow: 0 15px 40px var(--pink-glow); filter: brightness(1.1); }
 
 /* --- LIGHT FROSTED GLASS PANELS --- */
 .frosted-glass {
@@ -106,9 +116,6 @@ html, body {
     border: 1px solid var(--glass-border); border-radius: 12px; padding: 0; 
     box-shadow: var(--glass-shadow); width: 100%; max-width: 400px; overflow: hidden;
 }
-.glass-header { position: relative; z-index: 1; background: rgba(255,255,255,0.6); padding: 12px 20px; display: flex; gap: 6px; border-bottom: 1px solid rgba(0,0,0,0.05);}
-.dot { width: 10px; height: 10px; border-radius: 50%; }
-.dot.red { background: #ff5f56; } .dot.yellow { background: #ffbd2e; } .dot.green { background: #27c93f; }
 .glass-body { position: relative; z-index: 1; padding: 35px 25px; display: flex; flex-direction: column; align-items: flex-start; text-align: left;}
 
 .editorial-title { font-family: var(--font-editorial); font-size: 1.8rem; font-weight: 600; font-style: italic; margin-bottom: 10px;}
@@ -119,7 +126,7 @@ html, body {
 
 /* --- PAGE 3: THE ANTHEM --- */
 .anthem-card { padding: 30px 20px; position: relative; }
-.massive-title { position: relative; z-index: 1; font-size: 2rem; text-align: center; color: var(--pink-accent); margin-bottom: 15px; border-bottom: 1px solid rgba(230, 92, 135, 0.2); padding-bottom: 10px; align-self: center;}
+.massive-title { position: relative; z-index: 1; font-size: 2rem; text-align: center; color: var(--pink-accent); margin-bottom: 20px; border-bottom: 1px solid rgba(230, 92, 135, 0.2); padding-bottom: 15px; align-self: center;}
 .lyrics-text { position: relative; z-index: 1; font-family: var(--font-modern); font-size: 0.85rem; line-height: 1.5; color: var(--text-color); text-align: center; font-weight: 500; width: 100%;}
 .italic-pop { font-family: var(--font-editorial); font-size: 1.2rem; font-style: italic; font-weight: 700; color: var(--pink-accent);}
 
@@ -143,7 +150,7 @@ html, body {
 
 .final-wish { font-family: var(--font-editorial); font-size: 1.5rem; font-style: italic; font-weight: 600; z-index: 10; position: relative; }
 
-/* --- 3D CAKE --- */
+/* --- VIBRANT 3D CAKE --- */
 .elegant-cake-container { width: 100%; height: 240px; display: flex; justify-content: center; align-items: flex-end; position: relative; z-index: 10; animation: gentleFloat 6s ease-in-out infinite; }
 .cake-3d { position: relative; display: flex; flex-direction: column; align-items: center; justify-content: flex-end; padding-bottom: 12px; }
 .tier { position: relative; display: flex; justify-content: center; align-items: center; border-radius: 4px; box-shadow: inset -10px 0 20px rgba(0,0,0,0.05), inset 10px 0 20px rgba(255,255,255,0.6), 0 5px 10px rgba(230, 92, 135, 0.1); }
@@ -178,5 +185,5 @@ html, body {
     .lyrics-text { font-size: 0.8rem; }
     .final-wish { font-size: 1.2rem; }
     .polaroid-gallery { height: 260px; transform: scale(0.9); }
-}
-
+              }
+                  
