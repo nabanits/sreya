@@ -20,15 +20,17 @@ html, body {
     min-height: 100vh; width: 100vw;
 }
 
-/* --- THE BACKGROUND --- */
+/* --- THE REALISTIC BACKGROUND & NEW GRADIENT --- */
 .real-tulip-bg {
     position: fixed; top: -5%; left: -5%; width: 110vw; height: 110vh; z-index: 0;
+    background-color: #fdfaf7; /* Fallback */
     background-image: url('https://images.unsplash.com/photo-1520764836476-cb2ccf152d19?q=80&w=1080&auto=format&fit=crop');
     background-position: center; background-size: cover; background-repeat: no-repeat;
     filter: blur(4px); animation: gentleBreeze 25s ease-in-out infinite alternate;
 }
 .luxury-overlay {
     position: fixed; top: 0; left: 0; width: 100vw; height: 100vh; z-index: 1;
+    /* Soft Lavender & Peach Pastel gradient */
     background: linear-gradient(135deg, rgba(235, 220, 240, 0.9) 0%, rgba(255, 230, 220, 0.8) 100%);
 }
 
@@ -37,55 +39,34 @@ html, body {
     100% { transform: scale(1.08) translate(-2%, -1%); }
 }
 
-/* --- THE CANVAS PETAL FALL (Pages 3 & 4 only) --- */
+/* --- CANVAS PETAL FALL (Falls over everything) --- */
 #petal-canvas {
-    position: fixed; top: 0; left: 0; width: 100%; height: 100%;
-    pointer-events: none; 
-    z-index: 9998; /* ABOVE photos and glass panels */
-}
-
-/* --- ROAMING TULIPS (Pages 1 & 2 only) --- */
-.roaming-tulip {
-    position: fixed;
-    width: 25px; height: 35px;
-    filter: drop-shadow(0 4px 8px rgba(0,0,0,0.1));
-    z-index: 2; /* Behind panels, ahead of background */
-    pointer-events: none;
-    /* Set base opacity lower */
-    opacity: 0.3; 
-}
-@keyframes sparseRoam {
-    0% { transform: translateY(110vh) rotate(var(--rot-z)); opacity: 0; }
-    10% { opacity: 0.3; } /* Peak opacity is now 0.3 */
-    90% { opacity: 0.3; }
-    100% { transform: translateY(-10vh) rotate(calc(var(--rot-z) + 180deg)); opacity: 0; }
-}
-
-/* Layer 1: Behind content (Cake/Text) */
-#tulips-bg-layer { z-index: 2; }
-
-/* Layer 2: In front of content (Used only on Page 2) */
-#tulips-fg-layer { z-index: 10; }
-
-.actual-tulip {
-    position: absolute;
-    font-size: 32px;
-    user-select: none;
-    pointer-events: none;
-    filter: drop-shadow(0 2px 5px rgba(0,0,0,0.1));
-    will-change: transform; /* Optimization for movement */
+    position: fixed; top: 0; left: 0; 
+    width: 100%; height: 100%; /* Fixes smearing on mobile */
+    pointer-events: none; z-index: 9998; 
 }
 
 /* --- THE WATERMARK --- */
 .watermark-bg {
     position: absolute; top: 50%; left: 50%; transform: translate(-50%, -50%);
-    font-size: 15rem; opacity: 0.19; 
+    font-size: 15rem; 
+    opacity: 0.19; /* Updated to 0.19 */
     pointer-events: none; z-index: 0; user-select: none;
     filter: grayscale(20%) sepia(30%) hue-rotate(300deg);
 }
 .massive-watermark { font-size: 22rem; opacity: 0.19; }
-.monolith-mark { font-size: 12rem; opacity: 0.12; }
 .vault-wrapper { position: relative; }
+
+/* --- ROAMING TULIPS (Pages 1 & 2) --- */
+#roaming-tulips-container {
+    position: fixed; top: 0; left: 0; width: 100%; height: 100%;
+    pointer-events: none; z-index: 2; overflow: hidden;
+}
+.roaming-tulip {
+    position: absolute; font-size: 35px; user-select: none; pointer-events: none;
+    opacity: 0.6; /* Set to 0.6 as requested */
+    filter: drop-shadow(0 2px 5px rgba(0,0,0,0.1));
+}
 
 /* --- AUDIO & NAVIGATION CONTROLS --- */
 #audio-control {
@@ -118,8 +99,7 @@ html, body {
 .step-container {
     position: absolute; top: 0; left: 0; width: 100vw; min-height: 100vh;
     display: flex; justify-content: center; align-items: center; padding: 40px 20px;
-    opacity: 0; visibility: hidden; transition: opacity 0.6s ease, visibility 0.6s; 
-    z-index: 5; /* Content layer */
+    opacity: 0; visibility: hidden; transition: opacity 0.6s ease, visibility 0.6s; z-index: 5;
 }
 .step-container.active { opacity: 1; visibility: visible; }
 .hidden { display: none !important; }
@@ -145,60 +125,57 @@ html, body {
     border: 1px solid var(--glass-border); border-radius: 16px; padding: 0; 
     box-shadow: var(--glass-shadow); width: 100%; max-width: 400px; overflow: hidden;
 }
-.glass-header { position: relative; z-index: 1; background: rgba(255,255,255,0.5); padding: 12px 20px; display: flex; gap: 6px; border-bottom: 1px solid rgba(0,0,0,0.05);}
-.dot { width: 10px; height: 10px; border-radius: 50%; }
-.dot.red { background: #ff5f56; } .dot.yellow { background: #ffbd2e; } .dot.green { background: #27c93f; }
 .glass-body { position: relative; z-index: 1; padding: 35px 30px; display: flex; flex-direction: column; align-items: center;}
 
 .editorial-title { font-family: var(--font-editorial); font-size: 2rem; font-weight: 600; font-style: italic; margin-bottom: 15px; align-self: flex-start;}
 .chat-text { color: var(--text-color); line-height: 1.8; font-size: 0.95rem; font-weight: 500; min-height: 80px; align-self: flex-start; text-align: left;}
-.luxury-divider { width: 100%; height: 1px; background: linear-gradient(90deg, transparent, rgba(214, 107, 141, 0.4), transparent); margin: 25px 0; }
+.luxury-divider { width: 100%; height: 1px; background: rgba(214, 107, 141, 0.4); margin: 25px 0; }
 .typing-target::after { content: '|'; animation: blink 1s step-start infinite; color: var(--pink-accent); }
 @keyframes blink { 50% { opacity: 0; } }
 
-/* --- STEP 3: THE ANTHEM MONOLITH (Mobile Scroll Fix) --- */
-.anthem-card { padding: 40px 20px; position: relative; max-height: 70vh; overflow-y: auto;}
+/* --- STEP 3: THE ANTHEM MONOLITH --- */
+.anthem-card { padding: 40px 20px; position: relative; }
 .massive-title { position: relative; z-index: 1; font-size: 2.2rem; text-align: center; color: var(--pink-accent); margin-bottom: 20px; border-bottom: 1px solid rgba(214, 107, 141, 0.2); padding-bottom: 15px; align-self: center;}
 .lyrics-text { position: relative; z-index: 1; font-family: var(--font-modern); font-size: 0.9rem; line-height: 1.6; color: var(--text-color); text-align: center; font-weight: 500;}
 .italic-pop { font-family: var(--font-editorial); font-size: 1.3rem; font-style: italic; font-weight: 700; color: var(--pink-accent);}
 
-/* --- STEP 4: 5-PHOTO MEMORY VAULT --- */
+/* --- STEP 4: 5 PHOTO MEMORY VAULT --- */
 .polaroid-gallery { position: relative; z-index: 1; height: 350px; width: 100%; display: flex; justify-content: center; align-items: center; }
 .polaroid { 
-    position: absolute; background: #fff; padding: 8px 8px 30px 8px; border-radius: 4px; border: 1px solid #eaeaea; 
-    box-shadow: 0 15px 30px rgba(0,0,0,0.08); width: 130px; height: 170px; 
-    cursor: pointer; transition: 0.4s ease-out;
+    position: absolute; background: #fff; padding: 6px 6px 25px 6px; border-radius: 4px; border: 1px solid #eaeaea; 
+    box-shadow: 0 10px 20px rgba(0,0,0,0.05); width: 120px; height: 150px; 
+    cursor: pointer; overflow: hidden; transition: 0.4s ease-out;
 }
 .polaroid img { width: 100%; height: 100%; object-fit: cover; border-radius: 2px; }
 
 /* 5 Photo Fan Layout */
-.pos-1 { left: 5%; top: 5%; transform: rotate(-15deg); z-index: 1;}
-.pos-2 { right: 5%; top: 10%; transform: rotate(15deg); z-index: 2;}
-.pos-3 { left: 50%; bottom: 5%; transform: translate(-50%, 0) rotate(0deg); width: 150px; height: 190px; z-index: 5; box-shadow: 0 20px 40px rgba(0,0,0,0.15);}
+.pos-1 { left: 5%; top: 10%; transform: rotate(-15deg); z-index: 1;}
+.pos-2 { right: 5%; top: 5%; transform: rotate(15deg); z-index: 2;}
+.pos-3 { left: 50%; bottom: 5%; transform: translate(-50%, 0) rotate(0deg); width: 140px; height: 180px; z-index: 5; box-shadow: 0 20px 40px rgba(0,0,0,0.15);}
 .pos-4 { left: 15%; bottom: 20%; transform: rotate(-5deg); z-index: 3;}
 .pos-5 { right: 15%; bottom: 15%; transform: rotate(8deg); z-index: 4;}
 
-.polaroid:hover { transform: scale(1.1) translateY(-10px) !important; z-index: 20 !important; box-shadow: 0 30px 60px var(--pink-glow); border-color: var(--pink-accent); }
+.polaroid:hover { transform: scale(1.1) translateY(-10px) !important; z-index: 20 !important; box-shadow: 0 20px 40px var(--pink-glow); border-color: var(--pink-accent); }
 
 .final-wish { font-family: var(--font-editorial); font-size: 1.5rem; font-style: italic; font-weight: 600; text-shadow: 0 5px 15px rgba(255,255,255,0.8); z-index: 10; position: relative; }
 
 /* --- 3D CAKE --- */
-.elegant-cake-container { width: 100%; height: 240px; display: flex; justify-content: center; align-items: flex-end; position: relative; z-index: 10;}
+.elegant-cake-container { width: 100%; height: 240px; display: flex; justify-content: center; align-items: flex-end; position: relative; z-index: 10; animation: gentleFloat 6s ease-in-out infinite; }
 .cake-3d { position: relative; display: flex; flex-direction: column; align-items: center; justify-content: flex-end; padding-bottom: 12px; }
 .tier { position: relative; display: flex; justify-content: center; align-items: center; border-radius: 4px; box-shadow: inset -10px 0 20px rgba(0,0,0,0.05), inset 10px 0 20px rgba(255,255,255,0.6), 0 5px 10px rgba(214, 107, 141, 0.1); }
-.tier-bottom { width: 180px; height: 60px; background: linear-gradient(to right, #f5d6b8 0%, #fff2e0 40%, #f5d6b8 100%); z-index: 3; margin-top: -5px; border-bottom: 2px solid #e2a666; }
-.tier-middle { width: 140px; height: 55px; background: linear-gradient(to right, #e89cb3 0%, #ffd1df 40%, #e89cb3 100%); z-index: 4; margin-top: -5px; border-bottom: 2px solid #fff; }
-.tier-top { width: 100px; height: 50px; background: linear-gradient(to right, #c19cd6 0%, #ead1fa 40%, #c19cd6 100%); z-index: 5; border-bottom: 2px solid #fff; }
-.cake-text { font-family: var(--font-editorial); font-style: italic; font-size: 2.2rem; color: var(--pink-accent); text-shadow: 0 2px 5px #fff; transform: translateY(-2px); z-index: 15; }
+.tier-bottom { width: 180px; height: 60px; background: linear-gradient(to right, #ffcba4 0%, #ffe8d6 40%, #ffcba4 100%); z-index: 3; margin-top: -5px; border-bottom: 3px solid #f4a460; }
+.tier-middle { width: 140px; height: 55px; background: linear-gradient(to right, #ff8da1 0%, #ffb6c1 40%, #ff8da1 100%); z-index: 4; margin-top: -5px; border-bottom: 3px solid #fff; }
+.tier-top { width: 100px; height: 50px; background: linear-gradient(to right, #c19cd6 0%, #ead1fa 40%, #c19cd6 100%); z-index: 5; border-bottom: 3px solid #fff; }
+.cake-text { font-family: var(--font-editorial); font-style: italic; font-size: 2.2rem; color: #fff; text-shadow: 0 2px 5px rgba(0,0,0,0.3); transform: translateY(-2px); z-index: 15; }
 .candle-19 { position: absolute; top: -55px; z-index: 10; font-family: var(--font-editorial); font-style: italic; font-weight: 700; font-size: 2.5rem; color: var(--pink-accent); text-shadow: 0 0 10px #fff; display: flex; flex-direction: column; align-items: center; }
-.flame { width: 10px; height: 18px; background: #ffbf00; border-radius: 50% 50% 20% 20%; box-shadow: 0 0 15px #ffbf00, 0 0 30px #ff007f; margin-bottom: 2px; animation: flicker 0.15s infinite alternate;}
+.flame { width: 12px; height: 20px; background: #ffbf00; border-radius: 50% 50% 20% 20%; box-shadow: 0 0 15px #ffbf00, 0 0 30px #ff007f; margin-bottom: 2px; animation: flicker 0.15s infinite alternate;}
 @keyframes flicker { 0% { transform: rotate(-1deg) scale(1); opacity: 0.9; } 100% { transform: rotate(1deg) scale(1.05); opacity: 1; } }
 .cake-plate { position: absolute; bottom: 4px; width: 220px; height: 8px; background: #fff; border-radius: 50%; box-shadow: 0 10px 20px rgba(214, 107, 141, 0.15); z-index: 2; border: 1px solid #eee; }
 
 /* --- CINEMATIC LIGHTBOX --- */
 #image-modal {
     position: fixed; top: 0; left: 0; width: 100vw; height: 100vh;
-    background: rgba(255, 255, 255, 0.9); backdrop-filter: blur(15px);
+    background: rgba(255, 255, 255, 0.95); backdrop-filter: blur(10px);
     z-index: 9999; display: flex; justify-content: center; align-items: center;
     opacity: 0; visibility: hidden; transition: 0.4s;
 }
@@ -207,7 +184,7 @@ html, body {
 #image-modal.active .modal-content { transform: scale(1); }
 .close-modal { position: absolute; top: 30px; right: 40px; color: var(--pink-accent); font-size: 45px; font-weight: 300; cursor: pointer; transition: 0.3s; }
 
-/* Responsive Adjustments */
+/* Responsive Adjustments for Mobile */
 @media screen and (max-width: 400px) {
     .cinematic-title { font-size: 3.2rem; }
     .elegant-cake-container { transform: scale(0.8); margin-top: 0; }
@@ -218,3 +195,4 @@ html, body {
     .final-wish { font-size: 1.2rem; }
     .polaroid-gallery { height: 260px; transform: scale(0.9); }
     }
+                                                                               
