@@ -23,13 +23,9 @@ html, body {
 /* --- THE BACKGROUND --- */
 .real-tulip-bg {
     position: fixed; top: -5%; left: -5%; width: 110vw; height: 110vh; z-index: 0;
-    background-color: #fdfaf7; /* Fallback color */
     background-image: url('https://images.unsplash.com/photo-1520764836476-cb2ccf152d19?q=80&w=1080&auto=format&fit=crop');
-    background-position: center;
-    background-size: cover;
-    background-repeat: no-repeat;
-    filter: blur(4px); 
-    animation: gentleBreeze 25s ease-in-out infinite alternate;
+    background-position: center; background-size: cover; background-repeat: no-repeat;
+    filter: blur(4px); animation: gentleBreeze 25s ease-in-out infinite alternate;
 }
 .luxury-overlay {
     position: fixed; top: 0; left: 0; width: 100vw; height: 100vh; z-index: 1;
@@ -41,40 +37,43 @@ html, body {
     100% { transform: scale(1.08) translate(-2%, -1%); }
 }
 
-/* --- THE CANVAS PETAL FALL --- */
+/* --- THE CANVAS PETAL FALL (Pages 3 & 4 only) --- */
 #petal-canvas {
     position: fixed; top: 0; left: 0; width: 100%; height: 100%;
     pointer-events: none; 
     z-index: 9998; /* ABOVE photos and glass panels */
 }
 
-/* --- SPARSE ROAMING TULIPS (Pages 1 & 2) --- */
-#roaming-tulips-container {
+/* --- ROAMING TULIPS (Pages 1 & 2 only) --- */
+.roaming-container {
     position: fixed; top: 0; left: 0; width: 100%; height: 100%;
-    pointer-events: none; z-index: 2; overflow: hidden;
+    pointer-events: none; overflow: hidden;
 }
-.roaming-tulip {
+
+/* Layer 1: Behind content (Cake/Text) */
+#tulips-bg-layer { z-index: 2; }
+
+/* Layer 2: In front of content (Used only on Page 2) */
+#tulips-fg-layer { z-index: 10; }
+
+.actual-tulip {
     position: absolute;
-    width: 25px; height: 35px;
-    filter: drop-shadow(0 4px 8px rgba(0,0,0,0.1));
-    z-index: 2; pointer-events: none;
-}
-@keyframes sparseRoam {
-    0% { transform: translateY(110vh) rotate(var(--rot-z)); opacity: 0; }
-    10% { opacity: 0.6; }
-    90% { opacity: 0.6; }
-    100% { transform: translateY(-10vh) rotate(calc(var(--rot-z) + 180deg)); opacity: 0; }
+    font-size: 32px;
+    user-select: none;
+    pointer-events: none;
+    filter: drop-shadow(0 2px 5px rgba(0,0,0,0.1));
+    will-change: transform; /* Optimization for movement */
 }
 
 /* --- THE WATERMARK --- */
 .watermark-bg {
     position: absolute; top: 50%; left: 50%; transform: translate(-50%, -50%);
-    font-size: 15rem; 
-    opacity: 0.19; /* Exactly 0.19 as requested */
+    font-size: 15rem; opacity: 0.19; 
     pointer-events: none; z-index: 0; user-select: none;
     filter: grayscale(20%) sepia(30%) hue-rotate(300deg);
 }
 .massive-watermark { font-size: 22rem; opacity: 0.19; }
+.monolith-mark { font-size: 12rem; opacity: 0.12; }
 .vault-wrapper { position: relative; }
 
 /* --- AUDIO & NAVIGATION CONTROLS --- */
@@ -86,6 +85,14 @@ html, body {
 }
 #audio-arrow { position: fixed; top: 38px; right: 85px; z-index: 100; font-size: 0.75rem; font-weight: 600; letter-spacing: 1px; color: var(--text-color); animation: bounceLeft 1s infinite; }
 @keyframes bounceLeft { 0%, 100% { transform: translateX(0); } 50% { transform: translateX(-8px); } }
+
+#replay-popup {
+    position: fixed; top: 25px; left: 50%; transform: translateX(-50%); z-index: 1000;
+    background: var(--pink-accent); color: #fff; padding: 12px 25px; border-radius: 30px; 
+    font-family: var(--font-modern); font-weight: 600; font-size: 0.8rem; letter-spacing: 1px; text-transform: uppercase;
+    box-shadow: 0 10px 30px var(--pink-glow); cursor: pointer; animation: slideDown 0.5s ease;
+}
+@keyframes slideDown { from { top: -50px; opacity: 0; } to { top: 25px; opacity: 1; } }
 
 .nav-back {
     position: absolute; top: 25px; left: 25px; z-index: 100;
@@ -100,7 +107,8 @@ html, body {
 .step-container {
     position: absolute; top: 0; left: 0; width: 100vw; min-height: 100vh;
     display: flex; justify-content: center; align-items: center; padding: 40px 20px;
-    opacity: 0; visibility: hidden; transition: opacity 0.6s ease, visibility 0.6s; z-index: 5;
+    opacity: 0; visibility: hidden; transition: opacity 0.6s ease, visibility 0.6s; 
+    z-index: 5; /* Content layer */
 }
 .step-container.active { opacity: 1; visibility: visible; }
 .hidden { display: none !important; }
@@ -137,8 +145,8 @@ html, body {
 .typing-target::after { content: '|'; animation: blink 1s step-start infinite; color: var(--pink-accent); }
 @keyframes blink { 50% { opacity: 0; } }
 
-/* --- STEP 3: THE ANTHEM MONOLITH --- */
-.anthem-card { padding: 40px 20px; position: relative; }
+/* --- STEP 3: THE ANTHEM MONOLITH (Mobile Scroll Fix) --- */
+.anthem-card { padding: 40px 20px; position: relative; max-height: 70vh; overflow-y: auto;}
 .massive-title { position: relative; z-index: 1; font-size: 2.2rem; text-align: center; color: var(--pink-accent); margin-bottom: 20px; border-bottom: 1px solid rgba(214, 107, 141, 0.2); padding-bottom: 15px; align-self: center;}
 .lyrics-text { position: relative; z-index: 1; font-family: var(--font-modern); font-size: 0.9rem; line-height: 1.6; color: var(--text-color); text-align: center; font-weight: 500;}
 .italic-pop { font-family: var(--font-editorial); font-size: 1.3rem; font-style: italic; font-weight: 700; color: var(--pink-accent);}
@@ -188,7 +196,7 @@ html, body {
 #image-modal.active .modal-content { transform: scale(1); }
 .close-modal { position: absolute; top: 30px; right: 40px; color: var(--pink-accent); font-size: 45px; font-weight: 300; cursor: pointer; transition: 0.3s; }
 
-/* Responsive Adjustments for Mobile */
+/* Responsive Adjustments */
 @media screen and (max-width: 400px) {
     .cinematic-title { font-size: 3.2rem; }
     .elegant-cake-container { transform: scale(0.8); margin-top: 0; }
@@ -198,5 +206,4 @@ html, body {
     .lyrics-text { font-size: 0.8rem; }
     .final-wish { font-size: 1.2rem; }
     .polaroid-gallery { height: 260px; transform: scale(0.9); }
-         }
-         
+    }
