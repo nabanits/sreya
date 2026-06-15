@@ -366,7 +366,7 @@ function startPhotoShuffle() {
         photos.forEach((photo, index) => {
             photo.className = 'polaroid ' + positions[index];
         });
-    }, 3500); 
+    }, 2000); 
 }
 
 function openModal(imgSrc) {
