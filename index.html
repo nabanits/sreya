@@ -15,7 +15,7 @@
     <div class="real-tulip-bg"></div>
     <div class="luxury-overlay"></div>
     
-    <div id="roaming-tulips-container"></div>
+    <div id="tulips-bg-layer" class="roaming-container"></div>
     
     <canvas id="petal-canvas"></canvas>
 
@@ -61,14 +61,16 @@
         <div class="hidden" id="source1">They say the human brain fully develops at 25... So technically, according to neuro-cognitive metrics, you're still in the developmental phase, right? 😉</div>
         <div class="hidden" id="source2">HAPPY BIRTHDAY! You're incredible. This bespoke digital experience is a small token of the lucky friendship I value. According to my projections, you deserve an exponential surge in happiness this fiscal year.</div>
     </div>
+    
+    <div id="tulips-fg-layer" class="roaming-container"></div>
 
     <div id="step3" class="step-container hidden">
         <button class="nav-back" onclick="goToStep(2)"><span>←</span> Return</button>
         <div class="content-wrapper text-center w-100">
-            <div class="frosted-glass anthem-card">
-                <div class="watermark-bg">🌷</div>
+            <div class="frosted-glass anthem-card monolith">
+                <div class="watermark-bg monolith-mark">🌷</div>
                 <h2 class="editorial-title massive-title">The Birthday Anthem</h2>
-                <div class="lyrics-text">
+                <div class="lyrics-text monolith-lyrics">
                     Happy birthday to you, dear Sreya<br>
                     Another year has come today<br>
                     Wishing you the best in every way<br>
@@ -83,7 +85,7 @@
                     <span class="accent-pink italic-pop">Happy birthday! Yay! 🎉</span>
                 </div>
             </div>
-            <button class="luxury-btn mt-40" onclick="goToStep(4)">PHASE II: Vault Access 📸</button>
+            <button class="luxury-btn mt-30" onclick="goToStep(4)">PHASE II: Vault Access 📸</button>
         </div>
     </div>
 
@@ -115,4 +117,5 @@
 
     <script src="script.js"></script>
 </body>
-</html>
+    </html>
+    
