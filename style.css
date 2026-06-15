@@ -3,8 +3,8 @@
     --pink-accent: #e65c87;
     --pink-glow: rgba(230, 92, 135, 0.4);
     
-    --glass-bg: rgba(255, 255, 255, 0.8);
-    --glass-border: rgba(255, 255, 255, 1);
+    --glass-bg: rgba(255, 255, 255, 0.75);
+    --glass-border: rgba(255, 255, 255, 0.9);
     --glass-shadow: 0 15px 35px rgba(180, 100, 120, 0.15);
     
     --font-editorial: 'Playfair Display', serif;
@@ -14,58 +14,47 @@
 * { box-sizing: border-box; margin: 0; padding: 0; }
 
 html, body { 
-    background-color: #fdfaf7; color: var(--text-color);
+    background-color: #fff7fb; 
+    color: var(--text-color);
     font-family: var(--font-modern); 
     overflow-x: hidden; overflow-y: auto; 
     min-height: 100vh; width: 100vw;
 }
 
-/* --- THE REALISTIC BACKGROUND --- */
-.real-tulip-bg {
-    position: fixed; top: -5%; left: -5%; width: 110vw; height: 110vh; z-index: 0;
-    background: url('https://images.unsplash.com/photo-1520764836476-cb2ccf152d19?q=80&w=1080&auto=format&fit=crop') center/cover no-repeat;
-    filter: blur(4px); 
-    animation: gentleBreeze 25s ease-in-out infinite alternate;
-}
+/* --- THE CLEAN BACKGROUND --- */
 .luxury-overlay {
     position: fixed; top: 0; left: 0; width: 100vw; height: 100vh; z-index: 1;
-    background: linear-gradient(135deg, rgba(235, 220, 240, 0.9) 0%, rgba(255, 230, 220, 0.8) 100%);
+    background: linear-gradient(to bottom, #fff7fb, #f7eef5);
 }
 
-@keyframes gentleBreeze {
-    0% { transform: scale(1) translate(0, 0); }
-    100% { transform: scale(1.08) translate(-2%, -1%); }
+/* --- THE CANVAS PETAL FALL (Falls ABOVE everything) --- */
+#petal-canvas {
+    position: fixed; top: 0; left: 0; width: 100vw; height: 100vh;
+    pointer-events: none; z-index: 9998; 
 }
 
-/* --- THE BOUNCING EMOJIS (Pages 1 & 2) --- */
+/* --- ROAMING TULIPS (Pages 1 & 2) --- */
 #roaming-tulips-container {
     position: fixed; top: 0; left: 0; width: 100vw; height: 100vh;
     pointer-events: none; z-index: 2; overflow: hidden;
 }
-.bouncing-tulip {
+.roaming-tulip {
     position: absolute;
-    font-size: 35px; /* Slightly smaller so it doesn't overwhelm */
+    font-size: 30px;
     user-select: none;
     pointer-events: none;
-    opacity: 0.6; /* As requested */
-    filter: drop-shadow(0 2px 5px rgba(0,0,0,0.1));
-}
-
-/* --- THE CANVAS PETAL FALL (Pages 3 & 4) --- */
-#petal-canvas {
-    position: fixed; top: 0; left: 0; width: 100vw; height: 100vh;
-    pointer-events: none; z-index: 9998; 
+    opacity: 0.6; /* AS REQUESTED */
 }
 
 /* --- THE WATERMARK --- */
 .watermark-bg {
     position: absolute; top: 50%; left: 50%; transform: translate(-50%, -50%);
     font-size: 15rem; 
-    opacity: 0.19; /* EXACTLY 0.19 */
+    opacity: 0.19; /* EXACTLY 0.19 AS REQUESTED */
     pointer-events: none; z-index: 0; user-select: none;
-    filter: grayscale(20%) sepia(30%) hue-rotate(300deg);
+    filter: grayscale(10%) sepia(20%) hue-rotate(330deg);
 }
-.massive-watermark { font-size: 22rem; opacity: 0.19; }
+.massive-watermark { font-size: 24rem; opacity: 0.19; }
 .vault-wrapper { position: relative; }
 
 /* --- AUDIO & NAVIGATION CONTROLS --- */
@@ -77,14 +66,6 @@ html, body {
 }
 #audio-arrow { position: fixed; top: 38px; right: 85px; z-index: 100; font-size: 0.75rem; font-weight: 600; letter-spacing: 1px; color: var(--text-color); animation: bounceLeft 1s infinite; }
 @keyframes bounceLeft { 0%, 100% { transform: translateX(0); } 50% { transform: translateX(-8px); } }
-
-#replay-popup {
-    position: fixed; top: 25px; left: 50%; transform: translateX(-50%); z-index: 1000;
-    background: var(--pink-accent); color: #fff; padding: 12px 25px; border-radius: 30px; 
-    font-family: var(--font-modern); font-weight: 600; font-size: 0.8rem; letter-spacing: 1px; text-transform: uppercase;
-    box-shadow: 0 10px 30px var(--pink-glow); cursor: pointer; animation: slideDown 0.5s ease;
-}
-@keyframes slideDown { from { top: -50px; opacity: 0; } to { top: 25px; opacity: 1; } }
 
 .nav-back {
     position: absolute; top: 25px; left: 25px; z-index: 100;
@@ -107,7 +88,7 @@ html, body {
 .text-center { text-align: center; } .w-100 { width: 100%; } .mt-30 { margin-top: 30px; } .mt-40 { margin-top: 40px; }
 
 .kicker-text { font-size: 0.75rem; font-weight: 600; letter-spacing: 4px; opacity: 0.6; text-transform: uppercase; margin-bottom: 15px; }
-.cinematic-title { font-family: var(--font-editorial); font-size: 4.5rem; line-height: 1.1; font-weight: 400; font-style: italic; color: #1a1114; text-shadow: 0 5px 15px rgba(255,255,255,0.8); }
+.cinematic-title { font-family: var(--font-editorial); font-size: 4rem; line-height: 1.1; font-weight: 400; font-style: italic; color: #1a1114; }
 .accent-pink { color: var(--pink-accent); }
 
 /* Buttons */
@@ -116,65 +97,64 @@ html, body {
     font-family: var(--font-modern); font-size: 0.85rem; font-weight: 600; letter-spacing: 2px;
     text-transform: uppercase; cursor: pointer; transition: 0.4s; box-shadow: 0 10px 30px var(--pink-glow);
 }
-.luxury-btn:hover { transform: translateY(-3px); box-shadow: 0 15px 40px var(--pink-glow); filter: brightness(1.1); }
-.outline-btn { background: var(--glass-bg); backdrop-filter: blur(5px); border: 1px solid var(--pink-accent); color: var(--pink-accent); box-shadow: var(--glass-shadow); }
-.outline-btn:hover { background: var(--pink-accent); color: #fff; }
+.luxury-btn:hover { transform: translateY(-3px); box-shadow: 0 15px 40px var(--pink-glow); }
 
 /* --- LIGHT FROSTED GLASS PANELS --- */
 .frosted-glass {
     position: relative;
-    background: var(--glass-bg); backdrop-filter: blur(25px); -webkit-backdrop-filter: blur(25px);
-    border: 1px solid var(--glass-border); border-radius: 16px; padding: 0; 
+    background: var(--glass-bg); backdrop-filter: blur(15px); -webkit-backdrop-filter: blur(15px);
+    border: 1px solid var(--glass-border); border-radius: 12px; padding: 0; 
     box-shadow: var(--glass-shadow); width: 100%; max-width: 400px; overflow: hidden;
 }
-.glass-header { position: relative; z-index: 1; background: rgba(255,255,255,0.5); padding: 12px 20px; display: flex; gap: 6px; border-bottom: 1px solid rgba(0,0,0,0.05);}
+.glass-header { position: relative; z-index: 1; background: rgba(255,255,255,0.6); padding: 12px 20px; display: flex; gap: 6px; border-bottom: 1px solid rgba(0,0,0,0.05);}
 .dot { width: 10px; height: 10px; border-radius: 50%; }
 .dot.red { background: #ff5f56; } .dot.yellow { background: #ffbd2e; } .dot.green { background: #27c93f; }
-.glass-body { position: relative; z-index: 1; padding: 35px 30px; display: flex; flex-direction: column; align-items: center;}
+.glass-body { position: relative; z-index: 1; padding: 35px 25px; display: flex; flex-direction: column; align-items: flex-start; text-align: left;}
 
-.editorial-title { font-family: var(--font-editorial); font-size: 2rem; font-weight: 600; font-style: italic; margin-bottom: 15px; align-self: flex-start;}
-.chat-text { color: var(--text-color); line-height: 1.8; font-size: 0.95rem; font-weight: 500; min-height: 80px; align-self: flex-start; text-align: left;}
-.luxury-divider { width: 100%; height: 1px; background: linear-gradient(90deg, transparent, rgba(214, 107, 141, 0.4), transparent); margin: 25px 0; }
+.editorial-title { font-family: var(--font-editorial); font-size: 1.8rem; font-weight: 600; font-style: italic; margin-bottom: 10px;}
+.chat-text { color: var(--text-color); line-height: 1.6; font-size: 0.95rem; font-weight: 500; min-height: 80px;}
+.luxury-divider { width: 100%; height: 1px; background: rgba(230, 92, 135, 0.2); margin: 20px 0; }
 .typing-target::after { content: '|'; animation: blink 1s step-start infinite; color: var(--pink-accent); }
 @keyframes blink { 50% { opacity: 0; } }
 
-/* --- STEP 3: THE ANTHEM MONOLITH --- */
-.anthem-card { padding: 50px 30px; position: relative; }
-.massive-title { position: relative; z-index: 1; font-size: 2.8rem; text-align: center; color: var(--pink-accent); margin-bottom: 30px; border-bottom: 1px solid rgba(214, 107, 141, 0.2); padding-bottom: 20px;}
-.lyrics-text { position: relative; z-index: 1; font-family: var(--font-modern); font-size: 1rem; line-height: 1.8; color: var(--text-color); text-align: center; font-weight: 500;}
-.italic-pop { font-family: var(--font-editorial); font-size: 1.5rem; font-style: italic; font-weight: 700; color: var(--pink-accent);}
+/* --- PAGE 3: THE ANTHEM --- */
+.anthem-card { padding: 30px 20px; position: relative; }
+.massive-title { position: relative; z-index: 1; font-size: 2rem; text-align: center; color: var(--pink-accent); margin-bottom: 15px; border-bottom: 1px solid rgba(230, 92, 135, 0.2); padding-bottom: 10px; align-self: center;}
+.lyrics-text { position: relative; z-index: 1; font-family: var(--font-modern); font-size: 0.85rem; line-height: 1.5; color: var(--text-color); text-align: center; font-weight: 500; width: 100%;}
+.italic-pop { font-family: var(--font-editorial); font-size: 1.2rem; font-style: italic; font-weight: 700; color: var(--pink-accent);}
 
-/* --- STEP 4: FLOATING MEMORY SCATTER --- */
-.polaroid-gallery { position: relative; z-index: 1; height: 400px; width: 100%; display: flex; justify-content: center; align-items: center; }
+/* --- PAGE 4: 5 PHOTO MEMORY VAULT --- */
+.polaroid-gallery { position: relative; z-index: 1; height: 350px; width: 100%; display: flex; justify-content: center; align-items: center; }
 .polaroid { 
-    position: absolute; background: #fff; padding: 10px 10px 35px 10px; border-radius: 4px; border: 1px solid #eaeaea; 
-    box-shadow: 0 20px 40px rgba(0,0,0,0.1); width: 150px; height: 190px; 
-    cursor: pointer; overflow: hidden; transition: 0.4s; animation: gentleFloat 6s infinite ease-in-out;
+    position: absolute; background: #fff; padding: 6px 6px 25px 6px; border-radius: 4px; border: 1px solid #eaeaea; 
+    box-shadow: 0 10px 20px rgba(0,0,0,0.05); width: 120px; height: 150px; 
+    cursor: pointer; overflow: hidden; transition: 0.4s ease-out;
 }
-.polaroid img { width: 100%; height: 100%; object-fit: cover; border-radius: 2px; transition: 0.5s; }
-.polaroid:hover { transform: scale(1.1) !important; z-index: 20 !important; box-shadow: 0 30px 60px var(--pink-glow); border-color: var(--pink-accent); }
-.polaroid:hover img { filter: grayscale(0%) sepia(0%); }
+.polaroid img { width: 100%; height: 100%; object-fit: cover; border-radius: 2px; }
 
-.pos-1 { left: 5%; top: 5%; transform: rotate(-12deg); animation-delay: 0s; }
-.pos-2 { right: 5%; top: 10%; transform: rotate(14deg); animation-delay: -2s; }
-.pos-3 { left: 50%; bottom: 5%; transform: translate(-50%, 0) rotate(2deg); width: 170px; height: 210px; z-index: 3;}
-.pos-4 { left: 15%; bottom: 20%; transform: rotate(-5deg); animation-delay: -1s; z-index: 1;}
-.pos-5 { right: 20%; bottom: 15%; transform: rotate(8deg); animation-delay: -3s; z-index: 1;}
+/* 5 Photo Fan Layout */
+.pos-1 { left: 5%; top: 10%; transform: rotate(-15deg); z-index: 1;}
+.pos-2 { right: 5%; top: 5%; transform: rotate(15deg); z-index: 2;}
+.pos-3 { left: 15%; bottom: 10%; transform: rotate(-5deg); z-index: 3;}
+.pos-4 { right: 15%; bottom: 5%; transform: rotate(5deg); z-index: 4;}
+.pos-5 { left: 50%; top: 50%; transform: translate(-50%, -50%) rotate(0deg); width: 140px; height: 180px; z-index: 5; box-shadow: 0 15px 30px rgba(0,0,0,0.15);}
 
-.final-wish { position: relative; z-index: 1; font-family: var(--font-editorial); font-size: 1.8rem; font-style: italic; font-weight: 600; text-shadow: 0 5px 15px rgba(255,255,255,0.8); }
+.polaroid:hover { transform: scale(1.1) translateY(-10px) !important; z-index: 20 !important; box-shadow: 0 20px 40px var(--pink-glow); border-color: var(--pink-accent); }
 
-/* --- VIBRANT 3D CAKE --- */
+.final-wish { font-family: var(--font-editorial); font-size: 1.5rem; font-style: italic; font-weight: 600; z-index: 10; position: relative; }
+
+/* --- 3D CAKE --- */
 .elegant-cake-container { width: 100%; height: 240px; display: flex; justify-content: center; align-items: flex-end; position: relative; z-index: 10; animation: gentleFloat 6s ease-in-out infinite; }
 .cake-3d { position: relative; display: flex; flex-direction: column; align-items: center; justify-content: flex-end; padding-bottom: 12px; }
-.tier { position: relative; display: flex; justify-content: center; align-items: center; border-radius: 4px; box-shadow: inset -10px 0 20px rgba(0,0,0,0.05), inset 10px 0 20px rgba(255,255,255,0.6), 0 10px 20px rgba(214, 107, 141, 0.15); }
-.tier-bottom { width: 180px; height: 60px; background: linear-gradient(to right, #f5d6b8 0%, #fff2e0 40%, #f5d6b8 100%); z-index: 3; margin-top: -5px; border-bottom: 3px solid #f4a460; }
-.tier-middle { width: 140px; height: 55px; background: linear-gradient(to right, #ff8da1 0%, #ffb6c1 40%, #ff8da1 100%); z-index: 4; margin-top: -5px; border-bottom: 3px solid #fff; }
-.tier-top { width: 100px; height: 50px; background: linear-gradient(to right, #c19cd6 0%, #ead1fa 40%, #c19cd6 100%); z-index: 5; border-bottom: 3px solid #fff; }
-.cake-text { font-family: var(--font-editorial); font-style: italic; font-size: 2.2rem; color: var(--pink-accent); text-shadow: 0 2px 5px #fff; transform: translateY(-2px); z-index: 15; }
+.tier { position: relative; display: flex; justify-content: center; align-items: center; border-radius: 4px; box-shadow: inset -10px 0 20px rgba(0,0,0,0.05), inset 10px 0 20px rgba(255,255,255,0.6), 0 5px 10px rgba(230, 92, 135, 0.1); }
+.tier-bottom { width: 180px; height: 60px; background: linear-gradient(to right, #ffcba4 0%, #ffe8d6 40%, #ffcba4 100%); z-index: 3; margin-top: -5px; border-bottom: 2px solid #e2a666; }
+.tier-middle { width: 140px; height: 55px; background: linear-gradient(to right, #ff8da1 0%, #ffb6c1 40%, #ff8da1 100%); z-index: 4; margin-top: -5px; border-bottom: 2px solid #fff; }
+.tier-top { width: 100px; height: 50px; background: linear-gradient(to right, #dca3ff 0%, #f3d9ff 40%, #dca3ff 100%); z-index: 5; border-bottom: 2px solid #fff; }
+.cake-text { font-family: var(--font-editorial); font-style: italic; font-size: 2.2rem; color: #fff; text-shadow: 0 2px 5px rgba(0,0,0,0.3); transform: translateY(-2px); z-index: 15; }
 .candle-19 { position: absolute; top: -55px; z-index: 10; font-family: var(--font-editorial); font-style: italic; font-weight: 700; font-size: 2.5rem; color: var(--pink-accent); text-shadow: 0 0 10px #fff; display: flex; flex-direction: column; align-items: center; }
 .flame { width: 12px; height: 20px; background: #ffbf00; border-radius: 50% 50% 20% 20%; box-shadow: 0 0 15px #ffbf00, 0 0 30px #ff007f; margin-bottom: 2px; animation: flicker 0.15s infinite alternate;}
 @keyframes flicker { 0% { transform: rotate(-1deg) scale(1); opacity: 0.9; } 100% { transform: rotate(1deg) scale(1.05); opacity: 1; } }
-.cake-plate { position: absolute; bottom: 4px; width: 220px; height: 8px; background: #fff; border-radius: 50%; box-shadow: 0 15px 25px rgba(214, 107, 141, 0.2); z-index: 2; border: 1px solid #eee; }
+.cake-plate { position: absolute; bottom: 4px; width: 220px; height: 8px; background: #fff; border-radius: 50%; box-shadow: 0 10px 20px rgba(230, 92, 135, 0.15); z-index: 2; border: 1px solid #eee; }
 
 /* --- CINEMATIC LIGHTBOX --- */
 #image-modal {
@@ -184,7 +164,7 @@ html, body {
     opacity: 0; visibility: hidden; transition: 0.4s;
 }
 #image-modal.active { opacity: 1; visibility: visible; }
-.modal-content { max-width: 90%; max-height: 80vh; border-radius: 4px; box-shadow: 0 20px 50px rgba(214, 107, 141, 0.3); border: 8px solid #fff; transform: scale(0.95); transition: 0.5s; }
+.modal-content { max-width: 90%; max-height: 80vh; border-radius: 4px; box-shadow: 0 20px 50px rgba(230, 92, 135, 0.2); border: 8px solid #fff; transform: scale(0.95); transition: 0.5s; }
 #image-modal.active .modal-content { transform: scale(1); }
 .close-modal { position: absolute; top: 30px; right: 40px; color: var(--pink-accent); font-size: 45px; font-weight: 300; cursor: pointer; transition: 0.3s; }
 
@@ -198,5 +178,5 @@ html, body {
     .lyrics-text { font-size: 0.8rem; }
     .final-wish { font-size: 1.2rem; }
     .polaroid-gallery { height: 260px; transform: scale(0.9); }
-                 }
-    
+}
+
