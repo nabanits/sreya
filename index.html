@@ -8,13 +8,15 @@
     <link href="https://fonts.googleapis.com/css2?family=Montserrat:wght@300;400;500;600&family=Playfair+Display:ital,wght@0,400;0,600;0,700;1,400;1,600&display=swap" rel="stylesheet">
 </head>
 <body>
-    <audio id="bg-music" src="music.mp3" autoplay></audio>
+    <audio id="bg-music" src="music.mp3" autoplay loop></audio>
     <div id="audio-control" onclick="toggleAudio()">🔊</div>
     <div id="audio-arrow" class="hidden">Play Music ➔</div>
-    <div id="replay-popup" class="hidden" onclick="playAudioAgain()">Replay Track 🎵</div>
 
     <div class="real-tulip-bg"></div>
     <div class="luxury-overlay"></div>
+    
+    <div id="roaming-bg-layer" class="roaming-layer"></div>
+    <div id="roaming-fg-layer" class="roaming-layer"></div>
     
     <canvas id="petal-canvas"></canvas>
 
@@ -112,9 +114,6 @@
         <img class="modal-content" id="expanded-img">
     </div>
 
-    <div id="roaming-tulips-container"></div>
-
     <script src="script.js"></script>
 </body>
-        </html>
-    
+</html>
