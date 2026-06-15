@@ -22,7 +22,7 @@ let canvasPetals = [];
 window.onload = function() {
     initCanvasSize();
     
-    // Setup Roaming Foreground Layer for Page 1 (Behind Content)
+    // Page 1 Init: Force fgLayer behind content
     const fgLayer = document.getElementById('roaming-fg-layer');
     if(fgLayer) fgLayer.style.zIndex = "2"; 
     
@@ -75,13 +75,13 @@ window.goToStep = function(stepNumber) {
         startFloatingItems();
     } 
     else if (stepNumber === 2) {
-        // Page 2: The fgLayer (holding 30% of items) jumps in front of the text (z-index 10)
+        // Page 2: 30% jump in front of the text (z-index 10)
         if(fgLayer) fgLayer.style.zIndex = "10"; 
         stopPetalFall();
         startFloatingItems();
     } 
     else if (stepNumber === 3) {
-        // Page 3: NO TULIPS. NO PETALS. Completely static.
+        // Page 3: NOTHING. Completely static.
         stopFloatingItems();
         stopPetalFall();
     } 
@@ -163,23 +163,22 @@ function startFloatingItems() {
     fgLayer.innerHTML = '';
     roamingItems = [];
     
-    // Increased quantity by 1.5x (total 15 items)
-    const totalItems = 15; 
-    // Exactly 30% of them assigned to the Foreground layer
-    const fgCount = Math.floor(totalItems * 0.30); 
+    // Increased quantity by 1.5x (total 20 items)
+    const totalItems = 20; 
+    const fgCount = Math.floor(totalItems * 0.30); // 30% assigned to front layer
     
     const svgPath = "M12 2c0 0-7 4-7 11 0 4 3 8 7 9 4-1 7-5 7-9 0-7-7-11-7-11z M12 22 L12 13 M9 21 c0 0 3-11 3-11 M15 21 c0 0-3-11-3-11";
     const roamingColors = ['#ffffff', '#ffb6c1', '#ff69b4', '#ffe4e1'];
 
     for (let i = 0; i < totalItems; i++) {
         let t = document.createElement('div');
-        let isEmoji = (i % 2 === 0); 
+        let isEmoji = (i % 2 === 0); // 50/50 split of SVG and Emoji
         
         let itemData = {
             el: t,
             type: isEmoji ? 'emoji' : 'svg',
             x: Math.random() * (window.innerWidth - 40),
-            y: Math.random() * (window.innerHeight - 40),
+            y: 0,
             vx: 0,
             vy: 0,
             wave: Math.random() * Math.PI * 2
@@ -188,22 +187,23 @@ function startFloatingItems() {
         if (isEmoji) {
             t.className = "roaming-tulip roaming-emoji";
             t.textContent = "🌷";
-            // Normal bouncing speed for emojis
-            itemData.vx = (Math.random() - 0.5) * 2.5;
-            itemData.vy = (Math.random() - 0.5) * 2.5;
+            itemData.y = Math.random() * (window.innerHeight - 40);
+            
+            // NORMAL BOUNCING SPEED
+            itemData.vx = (Math.random() - 0.5) * 2;
+            itemData.vy = (Math.random() - 0.5) * 2;
         } else {
             t.className = "roaming-tulip roaming-svg";
             let color = roamingColors[Math.floor(Math.random() * roamingColors.length)];
             t.innerHTML = `<svg viewBox="0 0 24 24" fill="${color}" stroke="rgba(255,255,255,0.5)" stroke-width="0.5" xmlns="http://www.w3.org/2000/svg"><path d="${svgPath}"/></svg>`;
             
-            itemData.y = Math.random() * window.innerHeight + (Math.random() * 200);
-            itemData.vy = (Math.random() * 1.5) + 1.2; // Upward speed for SVGs
+            // SVG starts lower and has NORMAL UPWARD speed
+            itemData.y = window.innerHeight + (Math.random() * 200);
+            itemData.vy = (Math.random() * 1.5) + 1.2; 
         }
         
-        // Assign to correct layer
         let layer = (i < fgCount) ? fgLayer : bgLayer;
         layer.appendChild(t);
-
         roamingItems.push(itemData);
     }
     
@@ -220,13 +220,11 @@ function moveFloatingItems() {
             item.wave += 0.02;
             item.x += Math.sin(item.wave) * 0.5; 
 
+            // Respawn exactly at bottom when off-screen
             if (item.y < -60) {
                 item.y = window.innerHeight + 60;
                 item.x = Math.random() * window.innerWidth;
             }
-            if (item.x < -30) item.x = window.innerWidth + 30;
-            if (item.x > window.innerWidth + 30) item.x = -30;
-
         } else {
             // EMOJIS BOUNCE RANDOMLY
             item.x += item.vx;
@@ -235,7 +233,7 @@ function moveFloatingItems() {
             if (item.x < 0 || item.x > window.innerWidth - 40) item.vx *= -1;
             if (item.y < 0 || item.y > window.innerHeight - 40) item.vy *= -1;
             
-            item.el.style.rotate = `${Math.sin(item.x/50) * 15}deg`;
+            item.el.style.rotate = `${Math.sin(item.x/60) * 15}deg`;
         }
 
         item.el.style.transform = `translate(${item.x}px, ${item.y}px)`;
@@ -286,7 +284,7 @@ function createCanvasPetals() {
             rot: rand(0, Math.PI * 2),
             vr: rand(-0.015, 0.015),
             wave: rand(0, Math.PI * 2),
-            color: pick(petalColors), // <-- THIS WAS THE FATAL TYPO. FIXED!
+            color: pick(petalColors),
             alpha: rand(0.65, 0.95)
         });
     }
@@ -382,5 +380,4 @@ function openModal(imgSrc) {
 function closeModal() {
     const modal = document.getElementById('image-modal');
     modal.classList.remove('active'); 
-}
-    
+               }
