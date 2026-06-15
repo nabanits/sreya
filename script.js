@@ -1,28 +1,23 @@
 const audio = document.getElementById('bg-music');
 const arrow = document.getElementById('audio-arrow');
-const replayPopup = document.getElementById('replay-popup');
-const roamingTulipsContainer = document.getElementById('roaming-tulips-container');
+const canvas = document.getElementById("petal-canvas");
+const ctx = canvas.getContext("2d");
+const roamingContainer = document.getElementById('roaming-tulips-container');
 
-// Canvas variables
-const canvas = document.getElementById('petal-canvas');
-const ctx = canvas.getContext('2d');
+// State control
+let isPetalFallActive = false;
+let animationFrameId;
+let shuffleInterval;
+let positions = ['pos-1', 'pos-2', 'pos-3', 'pos-4', 'pos-5'];
+
+// Canvas Variables
 let W, H, DPR;
 let petals = [];
-let animationFrameId;
-let isCanvasRunning = false;
-
-// 5 Photo Positions
-let shuffleInterval;
-let positions = ['pos-1', 'pos-2', 'pos-3', 'pos-4', 'pos-5']; 
-
-// SVG path for roaming tulips
-const tulipPath = "M12,22 C18,22 20,15 20,11 L4,11 C4,15 6,22 12,22 Z M4,11 L9,3 L12,11 Z M20,11 L15,3 L12,11 Z M9,11 L12,1 L15,11 Z";
-const colors = ['#ffffff', '#ff66b2', '#ff99cc', '#d8b4e2'];
 
 // --- 1. INITIALIZATION & AUDIO ---
 window.onload = function() {
     initCanvasSize();
-    startRoamingTulips(); // Start sparse roaming tulips on P1/P2
+    startFloatingTulips(); // Start sparse roaming tulips on P1/P2
 
     audio.play().then(() => {
         arrow.classList.add('hidden');
@@ -44,26 +39,13 @@ function toggleAudio() {
     }
 }
 
-audio.addEventListener('ended', () => {
-    document.getElementById('audio-control').innerText = '🔇';
-    replayPopup.classList.remove('hidden');
-});
-
-function playAudioAgain() {
-    audio.currentTime = 0;
-    audio.play();
-    document.getElementById('audio-control').innerText = '🔊';
-    replayPopup.classList.add('hidden');
-}
-
-// --- 2. STEP NAVIGATION & BESPOKE PAGE LOGIC ---
+// --- 2. STEP NAVIGATION & CONDITIONAL LOGIC ---
 window.goToStep = function(stepNumber) {
     if (audio.paused && document.getElementById('audio-control').innerText === '🔊') {
         audio.play().catch(e => console.log("Audio play failed"));
         arrow.classList.add('hidden');
     }
 
-    // Stop photo shuffle if leaving step 4
     if(shuffleInterval) clearInterval(shuffleInterval);
 
     // Fade out current step
@@ -72,16 +54,16 @@ window.goToStep = function(stepNumber) {
         setTimeout(() => step.classList.add('hidden'), 600); 
     });
 
-    // Handle Background Animations based on page
+    // --- THE ANIMATION LOGIC ---
     if (stepNumber <= 2) {
         stopPetalFall();
-        startRoamingTulips();
+        startFloatingTulips();
     } else {
-        stopRoamingTulips();
+        stopFloatingTulips();
         startPetalFall();
     }
 
-    // Typewriter logic for Page 2
+    // Page 2 Typewriter
     if (stepNumber === 2) {
         const btn2 = document.getElementById('btn2');
         btn2.classList.add('hidden'); 
@@ -99,7 +81,7 @@ window.goToStep = function(stepNumber) {
         }, 800);
     }
 
-    // Vault logic for Page 4
+    // Page 4 Photo Shuffle
     if (stepNumber === 4) {
         startPhotoShuffle();
     }
@@ -112,11 +94,10 @@ window.goToStep = function(stepNumber) {
     }, 600);
 }
 
-// Bulletproof Typing (Handles Emojis safely)
+// Bulletproof Typing (Handles Emojis)
 function typeWriter(sourceId, targetId, callback) {
     const textElement = document.getElementById(sourceId);
-    if (!textElement) return; 
-    
+    if (!textElement) return;
     const text = textElement.innerHTML;
     const target = document.getElementById(targetId);
 
@@ -144,10 +125,12 @@ function typeWriter(sourceId, targetId, callback) {
 // --- 3. ANIMATION ENGINES ---
 
 // A. Sparse Floating Tulips (Pages 1 & 2)
-function startRoamingTulips() {
-    roamingTulipsContainer.innerHTML = ''; 
+function startFloatingTulips() {
+    roamingContainer.innerHTML = '';
     const numTulips = 6; 
-    
+    const tulipPath = "M12 2c0 0-7 4-7 11 0 4 3 8 7 9 4-1 7-5 7-9 0-7-7-11-7-11z M12 22 L12 13 M9 21 c0 0 3-11 3-11 M15 21 c0 0-3-11-3-11";
+    const colors = ['#ffffff', '#ffb6c1', '#ff69b4', '#ffe4e1'];
+
     for (let i = 0; i < numTulips; i++) {
         let tulip = document.createElement('div');
         tulip.classList.add('roaming-tulip');
@@ -156,26 +139,25 @@ function startRoamingTulips() {
         tulip.innerHTML = `<svg viewBox="0 0 24 24" fill="${color}" stroke="rgba(255,255,255,0.5)" stroke-width="0.5" xmlns="http://www.w3.org/2000/svg"><path d="${tulipPath}"/></svg>`;
         
         tulip.style.left = `${Math.random() * 100}vw`;
-        tulip.style.top = `${Math.random() * 100}vh`; 
         
         let rot = Math.random() * 360;
         tulip.style.setProperty('--rot-z', `${rot}deg`);
 
-        let duration = Math.random() * 25 + 25; // Slow float
-        let delay = Math.random() * -50; 
+        // Slower speed as requested (25-45 seconds to cross screen)
+        let duration = Math.random() * 20 + 25; 
+        let delay = Math.random() * -30; 
         
         tulip.style.animation = `sparseRoam ${duration}s linear ${delay}s infinite`;
         
-        roamingTulipsContainer.appendChild(tulip);
+        roamingContainer.appendChild(tulip);
     }
 }
 
-function stopRoamingTulips() {
-    roamingTulipsContainer.innerHTML = '';
+function stopFloatingTulips() {
+    roamingContainer.innerHTML = '';
 }
 
-
-// B. Continuous Canvas Petal Fall (Pages 3 & 4) - Includes the mobile fix
+// B. Continuous Canvas Petal Fall (Pages 3 & 4)
 function initCanvasSize() {
     W = window.innerWidth;
     H = window.innerHeight;
@@ -186,9 +168,8 @@ function initCanvasSize() {
 
 window.addEventListener("resize", () => {
     initCanvasSize();
-    if(isCanvasRunning) {
-        petals = []; // Reset petals to adjust to new screen size
-        createPetals();
+    if(isFallActive) {
+        createPetals(); // Recreate petals on resize to avoid glitching
     }
 });
 
@@ -196,7 +177,7 @@ const rand = (min, max) => Math.random() * (max - min) + min;
 const pick = arr => arr[(Math.random() * arr.length) | 0];
 
 function createPetals() {
-    const petalColors = ["#ff6ea8", "#ff8cbc", "#ffb2cf", "#ffd0de", "#f7a6c5"];
+    const colors = ["#ff6ea8", "#ff8cbc", "#ffb2cf", "#ffd0de", "#f7a6c5"];
     const count = Math.min(75, Math.floor((W * H) / 18000) + 40);
 
     petals = [];
@@ -210,15 +191,15 @@ function createPetals() {
             rot: rand(0, Math.PI * 2),
             vr: rand(-0.015, 0.015),
             wave: rand(0, Math.PI * 2),
-            color: pick(petalColors),
+            color: pick(colors),
             alpha: rand(0.65, 0.95)
         });
     }
 }
 
 function startPetalFall() {
-    if (isCanvasRunning) return;
-    isCanvasRunning = true;
+    if (isFallActive) return;
+    isFallActive = true;
     
     if (petals.length === 0) {
         createPetals();
@@ -227,42 +208,43 @@ function startPetalFall() {
 }
 
 function stopPetalFall() {
-    isCanvasRunning = false;
+    isFallActive = false;
     if (animationFrameId) cancelAnimationFrame(animationFrameId);
-    // Clear canvas and reset transform
-    petalCtx.setTransform(1, 0, 0, 1, 0, 0);
-    petalCtx.clearRect(0, 0, canvas.width, canvas.height);
+    
+    // Clear canvas
+    ctx.setTransform(1, 0, 0, 1, 0, 0);
+    ctx.clearRect(0, 0, canvas.width, canvas.height);
 }
 
 function drawPetal(p) {
-    petalCtx.save();
-    petalCtx.translate(p.x * DPR, p.y * DPR);
-    petalCtx.rotate(p.rot);
-    petalCtx.scale(p.s * DPR, p.s * DPR);
-    petalCtx.globalAlpha = p.alpha;
+    ctx.save();
+    ctx.translate(p.x * DPR, p.y * DPR);
+    ctx.rotate(p.rot);
+    ctx.scale(p.s * DPR, p.s * DPR);
+    ctx.globalAlpha = p.alpha;
 
-    const g = petalCtx.createLinearGradient(0, -12, 0, 12);
+    const g = ctx.createLinearGradient(0, -12, 0, 12);
     g.addColorStop(0, "#ffe4ef");
     g.addColorStop(0.5, p.color);
     g.addColorStop(1, "#ff7fb0");
-    petalCtx.fillStyle = g;
+    ctx.fillStyle = g;
 
-    petalCtx.beginPath();
-    petalCtx.moveTo(0, -10);
-    petalCtx.bezierCurveTo(7, -8, 10, -1, 7, 7);
-    petalCtx.bezierCurveTo(4, 11, -4, 12, -7, 7);
-    petalCtx.bezierCurveTo(-10, -1, -7, -8, 0, -10);
-    petalCtx.fill();
+    ctx.beginPath();
+    ctx.moveTo(0, -10);
+    ctx.bezierCurveTo(7, -8, 10, -1, 7, 7);
+    ctx.bezierCurveTo(4, 11, -4, 12, -7, 7);
+    ctx.bezierCurveTo(-10, -1, -7, -8, 0, -10);
+    ctx.fill();
 
-    petalCtx.restore();
+    ctx.restore();
 }
 
 function animatePetals() {
-    if (!isCanvasRunning) return;
+    if (!isFallActive) return;
 
-    // Mobile glitch fix: force wipe
-    petalCtx.setTransform(1, 0, 0, 1, 0, 0);
-    petalCtx.clearRect(0, 0, canvas.width, canvas.height);
+    // Bulletproof clear for mobile
+    ctx.setTransform(1, 0, 0, 1, 0, 0);
+    ctx.clearRect(0, 0, canvas.width, canvas.height);
 
     for (const p of petals) {
         p.x += p.vx + Math.sin(p.wave) * 0.35;
@@ -307,5 +289,5 @@ function openModal(imgSrc) {
 function closeModal() {
     const modal = document.getElementById('image-modal');
     modal.classList.remove('active'); 
-}
-    
+                }
+                
