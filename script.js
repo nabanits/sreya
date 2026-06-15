@@ -1,28 +1,25 @@
 const audio = document.getElementById('bg-music');
 const arrow = document.getElementById('audio-arrow');
 const replayPopup = document.getElementById('replay-popup');
+const canvas = document.getElementById('petal-canvas');
+const ctx = canvas.getContext('2d');
 const roamingContainer = document.getElementById('roaming-tulips-container');
 
-// Canvas globals
-const canvas = document.getElementById("petal-canvas");
-const ctx = canvas.getContext("2d");
+// Control variables
+let currentStep = 1;
+let shuffleInterval;
+let positions = ['pos-1', 'pos-2', 'pos-3', 'pos-4', 'pos-5']; 
+let isCanvasRunning = false;
+let animationFrameId;
+
+// Canvas setup variables
 let W, H, DPR;
 let petals = [];
-let animationFrameId;
-let isCanvasRunning = false;
-let roamingActive = false;
-
-// 5 Photo Positions
-let shuffleInterval;
-let positions = ['pos-1', 'pos-2', 'pos-3', 'pos-4', 'pos-5'];
 
 // --- 1. INITIALIZATION & AUDIO ---
 window.onload = function() {
-    // Initialize Canvas sizes but do NOT start animation yet
     initCanvasSize();
-    
-    // Start roaming emojis on Page 1
-    startRoamingTulips(); 
+    startRoamingTulips(); // Start sparse roaming tulips on P1/P2
 
     audio.play().then(() => {
         arrow.classList.add('hidden');
@@ -44,8 +41,22 @@ function toggleAudio() {
     }
 }
 
+audio.addEventListener('ended', () => {
+    document.getElementById('audio-control').innerText = '🔇';
+    replayPopup.classList.remove('hidden');
+});
+
+function playAudioAgain() {
+    audio.currentTime = 0;
+    audio.play();
+    document.getElementById('audio-control').innerText = '🔊';
+    replayPopup.classList.add('hidden');
+}
+
 // --- 2. STEP NAVIGATION & CONDITIONAL LOGIC ---
 window.goToStep = function(stepNumber) {
+    currentStep = stepNumber;
+
     if (audio.paused && document.getElementById('audio-control').innerText === '🔊') {
         audio.play().catch(e => console.log("Audio play failed"));
         arrow.classList.add('hidden');
@@ -54,13 +65,13 @@ window.goToStep = function(stepNumber) {
     // Stop photo shuffle if leaving step 4
     if(shuffleInterval) clearInterval(shuffleInterval);
 
-    // Fade out current step
+    // Hide all steps immediately
     document.querySelectorAll('.step-container').forEach(step => {
         step.classList.remove('active');
-        setTimeout(() => step.classList.add('hidden'), 600); 
+        step.classList.add('hidden'); 
     });
 
-    // --- THE ANIMATION LOGIC ---
+    // Handle Background Animations based on page
     if (stepNumber <= 2) {
         stopPetalFall();
         startRoamingTulips();
@@ -69,41 +80,50 @@ window.goToStep = function(stepNumber) {
         startPetalFall();
     }
 
-    // Page 2 Typewriter
-    if (stepNumber === 2) {
-        const btn2 = document.getElementById('btn2');
-        btn2.classList.add('hidden'); 
-        
-        setTimeout(() => {
-            let typingCompleted = 0; 
-            const checkDone = () => {
-                typingCompleted++;
-                if (typingCompleted === 2) {
-                    btn2.classList.remove('hidden'); 
-                }
-            };
-            typeWriter('source1', 'type1', checkDone);
-            typeWriter('source2', 'type2', checkDone);
-        }, 800);
-    }
-
-    // Page 4 Photo Shuffle
-    if (stepNumber === 4) {
-        startPhotoShuffle();
-    }
-
-    // Fade in new step
+    // Show the target step
+    const nextStep = document.getElementById('step' + stepNumber);
+    nextStep.classList.remove('hidden');
+    
     setTimeout(() => {
-        const nextStep = document.getElementById('step' + stepNumber);
-        nextStep.classList.remove('hidden');
-        setTimeout(() => nextStep.classList.add('active'), 50); 
-    }, 600);
+        nextStep.classList.add('active');
+        
+        // Trigger specific logic AFTER the step is visible
+        if (stepNumber === 2) {
+            startPageTwoTyping();
+        } else if (stepNumber === 4) {
+            startPhotoShuffle();
+        }
+    }, 50); 
 }
 
-// Bulletproof Typing (Handles Emojis)
+// Specific function for Page 2 typing logic
+function startPageTwoTyping() {
+    const btn2 = document.getElementById('btn2');
+    btn2.classList.add('hidden'); // Ensure button is hidden initially
+    
+    // Clear previous text
+    document.getElementById('type1').innerHTML = '';
+    document.getElementById('type2').innerHTML = '';
+    
+    let typingCompleted = 0; 
+    const checkDone = () => {
+        typingCompleted++;
+        if (typingCompleted === 2) {
+            btn2.classList.remove('hidden'); 
+        }
+    };
+    
+    setTimeout(() => {
+        typeWriter('source1', 'type1', checkDone);
+        typeWriter('source2', 'type2', checkDone);
+    }, 500); 
+}
+
+// Bulletproof Typing (Handles Emojis safely)
 function typeWriter(sourceId, targetId, callback) {
     const textElement = document.getElementById(sourceId);
-    if (!textElement) return;
+    if (!textElement) return; 
+    
     const text = textElement.innerHTML;
     const target = document.getElementById(targetId);
 
@@ -128,56 +148,57 @@ function typeWriter(sourceId, targetId, callback) {
     type();
 }
 
-
 // --- 3. ANIMATION ENGINES ---
 
-// A. Slow Roaming Tulips (Pages 1 & 2)
+// A. Sparse Floating Tulips (Pages 1 & 2)
 function startRoamingTulips() {
-    if (roamingActive) return;
-    roamingActive = true;
     roamingTulipsContainer.innerHTML = ''; 
+    const numTulips = 6; // Sparse amount
     
-    const numTulips = 6; 
     for (let i = 0; i < numTulips; i++) {
-        let t = document.createElement("div");
-        t.className = "roaming-tulip";
-        t.textContent = "🌷";
+        let tulip = document.createElement('div');
+        tulip.classList.add('roaming-tulip');
+        tulip.innerText = '🌷';
         
         let x = Math.random() * window.innerWidth;
         let y = Math.random() * window.innerHeight;
-        // Very slow speed
+        
+        // Slower speed
         let vx = (Math.random() - 0.5) * 0.8; 
         let vy = (Math.random() - 0.5) * 0.8;
 
-        roamingTulipsContainer.appendChild(t);
+        roamingTulipsContainer.appendChild(tulip);
 
-        function move(){
-            if (!roamingActive) return; // Kill switch
+        function moveTulip() {
+            if (currentStep > 2) return; // Stop if moved to P3/P4
+
             x += vx;
             y += vy;
 
-            if(x < 0 || x > window.innerWidth - 30) vx *= -1;
-            if(y < 0 || y > window.innerHeight - 40) vy *= -1;
+            // Bounce off edges
+            if (x < 0 || x > window.innerWidth - 30) vx *= -1;
+            if (y < 0 || y > window.innerHeight - 40) vy *= -1;
 
-            t.style.transform = `translate(${x}px, ${y}px)`;
-            requestAnimationFrame(move);
+            tulip.style.transform = `translate(${x}px, ${y}px)`;
+            tulip.style.opacity = 0.6; // Opacity 0.6 as requested
+
+            requestAnimationFrame(moveTulip);
         }
-        move();
+        moveTulip();
     }
 }
 
 function stopRoamingTulips() {
-    roamingActive = false;
     roamingTulipsContainer.innerHTML = '';
 }
 
 // B. Continuous Canvas Petal Fall (Pages 3 & 4)
 function initCanvasSize() {
-    DPR = Math.min(window.devicePixelRatio || 1, 2);
     W = window.innerWidth;
     H = window.innerHeight;
-    canvas.width = Math.floor(W * DPR);
-    canvas.height = Math.floor(H * DPR);
+    DPR = window.devicePixelRatio || 1;
+    canvas.width = W * DPR;
+    canvas.height = H * DPR;
 }
 
 window.addEventListener("resize", () => {
@@ -227,38 +248,39 @@ function stopPetalFall() {
     if (animationFrameId) cancelAnimationFrame(animationFrameId);
     
     // Clear canvas
-    petalCtx.setTransform(1, 0, 0, 1, 0, 0);
-    petalCtx.clearRect(0, 0, canvas.width, canvas.height);
+    ctx.setTransform(1, 0, 0, 1, 0, 0);
+    ctx.clearRect(0, 0, canvas.width, canvas.height);
 }
 
 function drawPetal(p) {
-    petalCtx.save();
-    petalCtx.translate(p.x * DPR, p.y * DPR);
-    petalCtx.rotate(p.rot);
-    petalCtx.scale(p.s * DPR, p.s * DPR);
-    petalCtx.globalAlpha = p.alpha;
+    ctx.save();
+    ctx.translate(p.x * DPR, p.y * DPR);
+    ctx.rotate(p.rot);
+    ctx.scale(p.s * DPR, p.s * DPR);
+    ctx.globalAlpha = p.alpha;
 
-    const g = petalCtx.createLinearGradient(0, -12, 0, 12);
+    const g = ctx.createLinearGradient(0, -12, 0, 12);
     g.addColorStop(0, "#ffe4ef");
     g.addColorStop(0.5, p.color);
     g.addColorStop(1, "#ff7fb0");
-    petalCtx.fillStyle = g;
+    ctx.fillStyle = g;
 
-    petalCtx.beginPath();
-    petalCtx.moveTo(0, -10);
-    petalCtx.bezierCurveTo(7, -8, 10, -1, 7, 7);
-    petalCtx.bezierCurveTo(4, 11, -4, 12, -7, 7);
-    petalCtx.bezierCurveTo(-10, -1, -7, -8, 0, -10);
-    petalCtx.fill();
+    ctx.beginPath();
+    ctx.moveTo(0, -10);
+    ctx.bezierCurveTo(7, -8, 10, -1, 7, 7);
+    ctx.bezierCurveTo(4, 11, -4, 12, -7, 7);
+    ctx.bezierCurveTo(-10, -1, -7, -8, 0, -10);
+    ctx.fill();
 
-    petalCtx.restore();
+    ctx.restore();
 }
 
 function animatePetals() {
     if (!isCanvasRunning) return;
 
-    petalCtx.setTransform(1, 0, 0, 1, 0, 0);
-    petalCtx.clearRect(0, 0, canvas.width, canvas.height);
+    // THE FIX: Absolutely force the canvas to wipe clean every frame to prevent smearing
+    ctx.setTransform(1, 0, 0, 1, 0, 0);
+    ctx.clearRect(0, 0, canvas.width, canvas.height);
 
     for (const p of petals) {
         p.x += p.vx + Math.sin(p.wave) * 0.35;
@@ -303,5 +325,5 @@ function openModal(imgSrc) {
 function closeModal() {
     const modal = document.getElementById('image-modal');
     modal.classList.remove('active'); 
-        }
-                
+                                                }
+    
