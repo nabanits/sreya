@@ -15,10 +15,14 @@ let animationFrameId;
 let W, H, DPR;
 let petals = [];
 
+// SVG path used for roaming tulips
+const tulipPath = "M12,22 C18,22 20,15 20,11 L4,11 C4,15 6,22 12,22 Z M4,11 L9,3 L12,11 Z M20,11 L15,3 L12,11 Z M9,11 L12,1 L15,11 Z";
+const colors = ['#ffffff', '#ff66b2', '#ff99cc', '#d8b4e2'];
+
 // --- 1. INITIALIZATION & AUDIO ---
 window.onload = function() {
-    initPetalCanvas(); // Setup the canvas dimensions
-    startFloatingTulips(); // Start sparse roaming tulips on P1/P2
+    initCanvasSize();
+    startRoamingTulips(); // Start sparse roaming tulips on P1/P2
 
     audio.play().then(() => {
         arrow.classList.add('hidden');
@@ -63,10 +67,10 @@ window.goToStep = function(stepNumber) {
     // Stop photo shuffle if leaving step 4
     if(shuffleInterval) clearInterval(shuffleInterval);
 
-    // Fade out current step
+    // Hide all steps immediately to ensure a clean transition
     document.querySelectorAll('.step-container').forEach(step => {
         step.classList.remove('active');
-        setTimeout(() => step.classList.add('hidden'), 800); 
+        step.classList.add('hidden'); 
     });
 
     // Conditional Logic for Petals
@@ -79,40 +83,53 @@ window.goToStep = function(stepNumber) {
         startPetalFall();     
     }
 
-    // Typewriter logic for Page 2
-    if (stepNumber === 2) {
-        const btn2 = document.getElementById('btn2');
-        btn2.classList.add('hidden'); 
-        
-        setTimeout(() => {
-            let typingCompleted = 0; 
-            const checkDone = () => {
-                typingCompleted++;
-                if (typingCompleted === 2) {
-                    btn2.classList.remove('hidden'); 
-                }
-            };
-            typeWriter('source1', 'type1', checkDone);
-            typeWriter('source2', 'type2', checkDone);
-        }, 1000);
-    }
-
-    // Vault logic for Page 4
-    if (stepNumber === 4) {
-        startPhotoShuffle();
-    }
-
-    // Fade in new step
+    // Show the target step
+    const nextStep = document.getElementById('step' + stepNumber);
+    nextStep.classList.remove('hidden');
+    
+    // Slight delay to allow CSS to register the block display before adding opacity
     setTimeout(() => {
-        const nextStep = document.getElementById('step' + stepNumber);
-        nextStep.classList.remove('hidden');
-        setTimeout(() => nextStep.classList.add('active'), 50); 
-    }, 800);
+        nextStep.classList.add('active');
+        
+        // Trigger specific logic AFTER the step is visible
+        if (stepNumber === 2) {
+            startPageTwoTyping();
+        } else if (stepNumber === 4) {
+            startPhotoShuffle();
+        }
+    }, 50); 
 }
 
-// Live Typing handles emojis safely
+// Specific function for Page 2 typing logic
+function startPageTwoTyping() {
+    const btn2 = document.getElementById('btn2');
+    btn2.classList.add('hidden'); // Ensure button is hidden initially
+    
+    // Clear previous text
+    document.getElementById('type1').innerHTML = '';
+    document.getElementById('type2').innerHTML = '';
+    
+    let typingCompleted = 0; 
+    const checkDone = () => {
+        typingCompleted++;
+        if (typingCompleted === 2) {
+            btn2.classList.remove('hidden'); 
+        }
+    };
+    
+    // Slight delay before typing starts for better effect
+    setTimeout(() => {
+        typeWriter('source1', 'type1', checkDone);
+        typeWriter('source2', 'type2', checkDone);
+    }, 500); 
+}
+
+// Bulletproof Typing (Handles Emojis safely)
 function typeWriter(sourceId, targetId, callback) {
-    const text = document.getElementById(sourceId).innerHTML;
+    const textElement = document.getElementById(sourceId);
+    if (!textElement) return; // Safety check
+    
+    const text = textElement.innerHTML;
     const target = document.getElementById(targetId);
 
     if (target.typingTimer) clearTimeout(target.typingTimer);
@@ -142,9 +159,6 @@ function typeWriter(sourceId, targetId, callback) {
 function startFloatingTulips() {
     roamingTulipsContainer.innerHTML = ''; 
     const numTulips = window.innerWidth < 600 ? 5 : 8; 
-    
-    const tulipPath = "M12,22 C18,22 20,15 20,11 L4,11 C4,15 6,22 12,22 Z M4,11 L9,3 L12,11 Z M20,11 L15,3 L12,11 Z M9,11 L12,1 L15,11 Z";
-    const colors = ['#ffffff', '#ff66b2', '#ff99cc', '#d8b4e2'];
 
     for (let i = 0; i < numTulips; i++) {
         let tulip = document.createElement('div');
@@ -174,7 +188,7 @@ function stopFloatingTulips() {
 
 
 // B. Continuous Canvas Petal Fall (Pages 3 & 4)
-function initPetalCanvas() {
+function initCanvasSize() {
     DPR = Math.min(window.devicePixelRatio || 1, 2);
     W = window.innerWidth;
     H = window.innerHeight;
@@ -184,7 +198,7 @@ function initPetalCanvas() {
 }
 
 window.addEventListener("resize", () => {
-    initPetalCanvas();
+    initCanvasSize();
     if(isFallActive) {
         petals = []; // Reset petals to adjust to new screen size
         createPetals();
@@ -195,7 +209,7 @@ const rand = (min, max) => Math.random() * (max - min) + min;
 const pick = arr => arr[(Math.random() * arr.length) | 0];
 
 function createPetals() {
-    const colors = ["#ff6ea8", "#ff8cbc", "#ffb2cf", "#ffd0de", "#f7a6c5"];
+    const petalColors = ["#ff6ea8", "#ff8cbc", "#ffb2cf", "#ffd0de", "#f7a6c5"];
     const count = Math.min(75, Math.floor((W * H) / 18000) + 40);
 
     petals = [];
@@ -209,7 +223,7 @@ function createPetals() {
             rot: rand(0, Math.PI * 2),
             vr: rand(-0.015, 0.015),
             wave: rand(0, Math.PI * 2),
-            color: pick(colors),
+            color: pick(petalColors),
             alpha: rand(0.65, 0.95)
         });
     }
@@ -228,14 +242,16 @@ function startPetalFall() {
 function stopPetalFall() {
     isFallActive = false;
     if (animationFrameId) cancelAnimationFrame(animationFrameId);
+    // Clear canvas and reset transform
+    petalCtx.setTransform(1, 0, 0, 1, 0, 0);
     petalCtx.clearRect(0, 0, canvas.width, canvas.height);
 }
 
 function drawPetal(p) {
     petalCtx.save();
-    petalCtx.translate(p.x, p.y);
+    petalCtx.translate(p.x * DPR, p.y * DPR);
     petalCtx.rotate(p.rot);
-    petalCtx.scale(p.s, p.s);
+    petalCtx.scale(p.s * DPR, p.s * DPR);
     petalCtx.globalAlpha = p.alpha;
 
     const g = petalCtx.createLinearGradient(0, -12, 0, 12);
@@ -306,4 +322,5 @@ function openModal(imgSrc) {
 function closeModal() {
     const modal = document.getElementById('image-modal');
     modal.classList.remove('active'); 
-}
+                   }
+               
