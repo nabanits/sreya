@@ -1,27 +1,32 @@
 const audio = document.getElementById('bg-music');
 const arrow = document.getElementById('audio-arrow');
-const replayPopup = document.getElementById('replay-popup');
-const roamingContainer = document.getElementById('roaming-tulips-container');
+const canvas = document.getElementById("petal-canvas");
+const ctx = canvas.getContext("2d");
 
-// Canvas variables
+// State control
+let currentStep = 1;
 let isPetalFallActive = false;
 let isRoamingActive = false;
-let roamingTulips = [];
+let roamingItems = []; // Stores both SVGs and Emojis
 let animationFrameId;
-
-// Petal Fall Variables
-let W, H, DPR;
-const colors = ["#ff6ea8", "#ff8cbc", "#ffb2cf", "#ffd0de", "#f7a6c5"];
-let canvasPetals = [];
 
 // 5 Photo Positions
 let shuffleInterval;
 const positions = ['pos-1', 'pos-2', 'pos-3', 'pos-4', 'pos-5'];
 
+// Canvas Variables
+let W, H, DPR;
+let canvasPetals = [];
+
 // --- 1. INITIALIZATION & AUDIO ---
 window.onload = function() {
     initCanvasSize();
-    startFloatingTulips(); // Start sparse roaming tulips on P1/P2
+    
+    // Start roaming on P1. By default it forces fgLayer to z-index 2 (behind cake).
+    const fgLayer = document.getElementById('roaming-fg-layer');
+    if(fgLayer) fgLayer.style.zIndex = "2"; 
+    
+    startFloatingItems(); 
 
     audio.play().then(() => {
         arrow.classList.add('hidden');
@@ -43,26 +48,15 @@ function toggleAudio() {
     }
 }
 
-audio.addEventListener('ended', () => {
-    document.getElementById('audio-control').innerText = '🔇';
-    replayPopup.classList.remove('hidden');
-});
-
-function playAudioAgain() {
-    audio.currentTime = 0;
-    audio.play();
-    document.getElementById('audio-control').innerText = '🔊';
-    replayPopup.classList.add('hidden');
-}
-
 // --- 2. STEP NAVIGATION & CONDITIONAL LOGIC ---
 window.goToStep = function(stepNumber) {
+    currentStep = stepNumber;
+
     if (audio.paused && document.getElementById('audio-control').innerText === '🔊') {
         audio.play().catch(e => console.log("Audio play failed"));
         arrow.classList.add('hidden');
     }
 
-    // Stop photo shuffle if leaving step 4
     if(shuffleInterval) clearInterval(shuffleInterval);
 
     // Fade out current step
@@ -71,12 +65,29 @@ window.goToStep = function(stepNumber) {
         setTimeout(() => step.classList.add('hidden'), 600); 
     });
 
-    // --- THE ANIMATION LOGIC ---
-    if (stepNumber <= 2) {
+    // --- THE STRICT ANIMATION SWITCH LOGIC ---
+    const fgLayer = document.getElementById('roaming-fg-layer');
+
+    if (stepNumber === 1) {
+        // Page 1: ALL roaming items behind the cake
+        if(fgLayer) fgLayer.style.zIndex = "2"; 
         stopPetalFall();
-        startFloatingTulips();
-    } else {
-        stopFloatingTulips();
+        startFloatingItems();
+    } 
+    else if (stepNumber === 2) {
+        // Page 2: The fgLayer (holding 30% of items) jumps in front of the text (z-index 10)
+        if(fgLayer) fgLayer.style.zIndex = "10"; 
+        stopPetalFall();
+        startFloatingItems();
+    } 
+    else if (stepNumber === 3) {
+        // Page 3: NO TULIPS. NO PETALS. Completely static.
+        stopFloatingItems();
+        stopPetalFall();
+    } 
+    else if (stepNumber === 4) {
+        // Page 4: ONLY Canvas Petal Shower
+        stopFloatingItems();
         startPetalFall();
     }
 
@@ -111,11 +122,10 @@ window.goToStep = function(stepNumber) {
     }, 600);
 }
 
-// Bulletproof Typing (Handles Emojis)
+// Typewriter Function
 function typeWriter(sourceId, targetId, callback) {
     const textElement = document.getElementById(sourceId);
-    if (!textElement) return; 
-    
+    if (!textElement) return;
     const text = textElement.innerHTML;
     const target = document.getElementById(targetId);
 
@@ -142,87 +152,119 @@ function typeWriter(sourceId, targetId, callback) {
 
 // --- 3. ANIMATION ENGINES ---
 
-// A. Sparse Roaming Tulips (Pages 1 & 2)
-// Mixture of SVGs and Emojis, higher speed, z-index managed by container
-function startFloatingTulips() {
-    if (isRoamingActive) return;
+// A. MIXED ROAMING ENGINE (Pages 1 & 2)
+// Logic: SVGs go UP continuously. Emojis BOUNCE randomly.
+function startFloatingItems() {
+    if (isRoamingActive) return; 
     isRoamingActive = true;
-    roamingContainer.innerHTML = ''; 
     
-    // Increased quantity
-    const numTulips = 12; 
+    const bgLayer = document.getElementById('roaming-bg-layer');
+    const fgLayer = document.getElementById('roaming-fg-layer');
+    bgLayer.innerHTML = ''; 
+    fgLayer.innerHTML = '';
+    roamingItems = [];
+    
+    // Increased quantity by 1.5x (total 15 items)
+    const totalItems = 15; 
+    // Exactly 30% of them assigned to the Foreground layer
+    const fgCount = Math.floor(totalItems * 0.30); 
+    
     const svgPath = "M12 2c0 0-7 4-7 11 0 4 3 8 7 9 4-1 7-5 7-9 0-7-7-11-7-11z M12 22 L12 13 M9 21 c0 0 3-11 3-11 M15 21 c0 0-3-11-3-11";
     const roamingColors = ['#ffffff', '#ffb6c1', '#ff69b4', '#ffe4e1'];
 
-    for (let i = 0; i < numTulips; i++) {
-        let tulip = document.createElement('div');
-        tulip.classList.add('roaming-tulip');
+    for (let i = 0; i < totalItems; i++) {
+        let t = document.createElement('div');
+        let isEmoji = (i % 2 === 0); // Alternate types
         
-        // Mix emojis and SVGs
-        if (i % 2 === 0) {
-            tulip.textContent = "🌷";
-            tulip.style.fontSize = "35px";
+        let itemData = {
+            el: t,
+            type: isEmoji ? 'emoji' : 'svg',
+            x: Math.random() * (window.innerWidth - 40),
+            y: Math.random() * (window.innerHeight - 40),
+            vx: 0,
+            vy: 0,
+            wave: Math.random() * Math.PI * 2
+        };
+
+        if (isEmoji) {
+            t.className = "roaming-tulip roaming-emoji";
+            t.textContent = "🌷";
+            // Normal bouncing speed for emojis
+            itemData.vx = (Math.random() - 0.5) * 2.5;
+            itemData.vy = (Math.random() - 0.5) * 2.5;
         } else {
+            t.className = "roaming-tulip roaming-svg";
             let color = roamingColors[Math.floor(Math.random() * roamingColors.length)];
-            tulip.innerHTML = `<svg viewBox="0 0 24 24" fill="${color}" stroke="rgba(255,255,255,0.5)" stroke-width="0.5" xmlns="http://www.w3.org/2000/svg"><path d="${svgPath}"/></svg>`;
-            tulip.style.width = "30px";
-            tulip.style.height = "40px";
+            t.innerHTML = `<svg viewBox="0 0 24 24" fill="${color}" stroke="rgba(255,255,255,0.5)" stroke-width="0.5" xmlns="http://www.w3.org/2000/svg"><path d="${svgPath}"/></svg>`;
+            
+            // Start SVGs lower down so they can float up naturally
+            itemData.y = Math.random() * window.innerHeight + (Math.random() * 200);
+            
+            // Upward speed for SVGs
+            itemData.vy = (Math.random() * 1.5) + 1.2; 
         }
         
-        let x = Math.random() * window.innerWidth;
-        let y = Math.random() * window.innerHeight;
-        
-        // Increased speed
-        let vx = (Math.random() - 0.5) * 2.5; 
-        let vy = (Math.random() - 0.5) * 2.5;
+        // Assign to correct layer (30% to FG, 70% to BG)
+        let layer = (i < fgCount) ? fgLayer : bgLayer;
+        layer.appendChild(t);
 
-        roamingContainer.appendChild(tulip);
-
-        roamingTulips.push({
-            el: tulip,
-            x: x,
-            y: y,
-            vx: vx,
-            vy: vy
-        });
+        roamingItems.push(itemData);
     }
     
-    requestAnimationFrame(moveRoamingTulips);
+    requestAnimationFrame(moveFloatingItems);
 }
 
-function moveRoamingTulips() {
+function moveFloatingItems() {
     if (!isRoamingActive) return;
 
-    for (let t of roamingTulips) {
-        t.x += t.vx;
-        t.y += t.vy;
+    for (let item of roamingItems) {
+        if (item.type === 'svg') {
+            // BEHAVIOR 1: SVGs FLOAT UP CONTINUOUSLY
+            item.y -= item.vy; 
+            item.wave += 0.02;
+            item.x += Math.sin(item.wave) * 0.5; // Gentle sway
 
-        // Bounce
-        if (t.x < 0 || t.x > window.innerWidth - 40) t.vx *= -1;
-        if (t.y < 0 || t.y > window.innerHeight - 40) t.vy *= -1;
+            // Respawn at bottom when reaching top
+            if (item.y < -60) {
+                item.y = window.innerHeight + 60;
+                item.x = Math.random() * window.innerWidth;
+            }
+            // Horizontal wrap
+            if (item.x < -30) item.x = window.innerWidth + 30;
+            if (item.x > window.innerWidth + 30) item.x = -30;
 
-        t.el.style.transform = `translate(${t.x}px, ${t.y}px)`;
-        // Add gentle rotation
-        t.el.style.rotate = `${Math.sin(t.x/50) * 15}deg`;
+        } else {
+            // BEHAVIOR 2: EMOJIS BOUNCE RANDOMLY
+            item.x += item.vx;
+            item.y += item.vy;
+
+            // Bounce off edges
+            if (item.x < 0 || item.x > window.innerWidth - 40) item.vx *= -1;
+            if (item.y < 0 || item.y > window.innerHeight - 40) item.vy *= -1;
+            
+            // Slight rotation for bounce effect
+            item.el.style.rotate = `${Math.sin(item.x/50) * 15}deg`;
+        }
+
+        // Apply new position
+        item.el.style.transform = `translate(${item.x}px, ${item.y}px)`;
     }
 
-    requestAnimationFrame(moveRoamingTulips);
+    requestAnimationFrame(moveFloatingItems);
 }
 
-function stopFloatingTulips() {
+function stopFloatingItems() {
     isRoamingActive = false;
-    roamingContainer.innerHTML = '';
-    roamingTulips = [];
+    document.getElementById('roaming-bg-layer').innerHTML = '';
+    document.getElementById('roaming-fg-layer').innerHTML = '';
+    roamingItems = [];
 }
 
-// B. Continuous Canvas Petal Fall (Pages 3 & 4) - Smear Fix Applied
+// B. CANVAS PETAL ENGINE (Page 4 ONLY)
 function initCanvasSize() {
-    const canvas = document.getElementById("petal-canvas");
-    const ctx = canvas.getContext("2d");
     W = window.innerWidth;
     H = window.innerHeight;
     DPR = window.devicePixelRatio || 1;
-    // Lock the internal canvas resolution to prevent smearing
     canvas.width = W * DPR;
     canvas.height = H * DPR;
 }
@@ -230,7 +272,7 @@ function initCanvasSize() {
 window.addEventListener("resize", () => {
     initCanvasSize();
     if(isPetalFallActive) {
-        canvasPetals = []; // Reset petals to adjust to new screen size
+        canvasPetals = [];
         createCanvasPetals();
     }
 });
@@ -271,15 +313,12 @@ function stopPetalFall() {
     isPetalFallActive = false;
     if (animationFrameId) cancelAnimationFrame(animationFrameId);
     
-    const canvas = document.getElementById("petal-canvas");
-    const ctx = canvas.getContext("2d");
     ctx.setTransform(1, 0, 0, 1, 0, 0);
     ctx.clearRect(0, 0, canvas.width, canvas.height);
 }
 
 function drawCanvasPetal(ctx, p) {
     ctx.save();
-    // Use DPR to draw sharply on mobile
     ctx.translate(p.x * DPR, p.y * DPR);
     ctx.rotate(p.rot);
     ctx.scale(p.s * DPR, p.s * DPR);
@@ -304,10 +343,6 @@ function drawCanvasPetal(ctx, p) {
 function animateCanvasPetals() {
     if (!isPetalFallActive) return;
 
-    const canvas = document.getElementById("petal-canvas");
-    const ctx = canvas.getContext("2d");
-
-    // THE FIX: Absolutely force the canvas to wipe clean every frame to prevent smearing
     ctx.setTransform(1, 0, 0, 1, 0, 0);
     ctx.clearRect(0, 0, canvas.width, canvas.height);
 
@@ -329,7 +364,6 @@ function animateCanvasPetals() {
 
     animationFrameId = requestAnimationFrame(animateCanvasPetals);
 }
-
 
 // --- 4. PHOTO GALLERY & LIGHTBOX ---
 function startPhotoShuffle() {
@@ -355,5 +389,5 @@ function openModal(imgSrc) {
 function closeModal() {
     const modal = document.getElementById('image-modal');
     modal.classList.remove('active'); 
-                   }
-                   
+        }
+            
