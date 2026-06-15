@@ -45,9 +45,20 @@ html, body {
 }
 
 /* --- ROAMING TULIPS (Pages 1 & 2 only) --- */
-.roaming-container {
-    position: fixed; top: 0; left: 0; width: 100%; height: 100%;
-    pointer-events: none; overflow: hidden;
+.roaming-tulip {
+    position: fixed;
+    width: 25px; height: 35px;
+    filter: drop-shadow(0 4px 8px rgba(0,0,0,0.1));
+    z-index: 2; /* Behind panels, ahead of background */
+    pointer-events: none;
+    /* Set base opacity lower */
+    opacity: 0.3; 
+}
+@keyframes sparseRoam {
+    0% { transform: translateY(110vh) rotate(var(--rot-z)); opacity: 0; }
+    10% { opacity: 0.3; } /* Peak opacity is now 0.3 */
+    90% { opacity: 0.3; }
+    100% { transform: translateY(-10vh) rotate(calc(var(--rot-z) + 180deg)); opacity: 0; }
 }
 
 /* Layer 1: Behind content (Cake/Text) */
